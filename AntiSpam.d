@@ -32,7 +32,9 @@ void main(string[] args)
 				log("Author: " ~ post.author);
 				log("IP: " ~ post.IP);
 				log("Title: " ~ post.title);
-				log("Content:\n" ~ post.message);
+				log("Content:");
+				foreach (line; splitlines(post.message))
+					log("> " ~ line);
 
 				string[] positiveEngines;
 				foreach (name, checker; engines)
@@ -51,7 +53,7 @@ void main(string[] args)
 				else
 					log("Verdict: not spam.");
 
-				log("---------------------------------");
+				log("-------------------------------------------------------------");
 				knownIDs[ID] = true;
 			}
 
