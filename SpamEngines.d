@@ -1,6 +1,6 @@
 module SpamEngines;
 
-import Akismet, StopForumSpam, ProjectHoneyPot;
+import Akismet, StopForumSpam, ProjectHoneyPot, Defensio;
 
 struct CheckResult
 {
