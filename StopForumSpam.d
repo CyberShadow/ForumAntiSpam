@@ -1,3 +1,5 @@
+module StopForumSpam;
+
 import Team15.Utils;
 import Team15.LiteXML;
 

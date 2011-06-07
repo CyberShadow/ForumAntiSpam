@@ -1,3 +1,5 @@
+module AntiSpam;
+
 import std.c.time;
 import std.stdio;
 import std.string;
