@@ -48,7 +48,12 @@ void main(string[] args)
 				if (positiveEngines.length >= TOTAL_POSITIVE_THRESHOLD)
 				{
 					log("Verdict: SPAM, deleting.");
-					deletePost(ID, "Spam (" ~ positiveEngines.join(", ") ~ ")");
+					string reason;
+					if (positiveEngines.length == engines.length)
+						reason = "Definitely spam";
+					else
+						reason = "Spam (" ~ positiveEngines.join(", ") ~ ")";
+					deletePost(ID, reason);
 				}
 				else
 					log("Verdict: not spam.");
