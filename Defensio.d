@@ -17,7 +17,8 @@ CheckResult check(Message message)
 	auto result = postDocument(message);
 	return CheckResult(
 		result["allow"].text == "false",
-		format("spaminess: %s, classification: %s, profanity-match: %s, signature: %s",
+		format("allow: %s, spaminess: %s, classification: %s, profanity-match: %s, signature: %s",
+			result["allow"].text,
 			result["spaminess"].text,
 			result["classification"].text,
 			result["profanity-match"].text,
@@ -62,7 +63,7 @@ public void postFeedback(string signature, bool isSpam)
 	string url = "http://api.defensio.com/2.0/users/" ~ key ~ "/documents/" ~ signature ~ ".xml";
 
 	auto xml = new XmlDocument(new MemoryStream(put(url, encodeUrlParameters(params))));
-	/*scope(failure) */write("defensio-feedback-result.xml", xml.toString());
+	scope(failure) write("defensio-feedback-result.xml", xml.toString());
 	auto result = xml["defensio-result"];
 	auto messageNode = result.findChild("message");
 	enforce(result["status"].text == "success", "Defensio API failure" ~ (messageNode ? ": " ~ messageNode.text : ""));
