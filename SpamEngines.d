@@ -1,6 +1,7 @@
 module SpamEngines;
 
 import Akismet, StopForumSpam, ProjectHoneyPot, Defensio;
+public import Common;
 
 struct CheckResult
 {
@@ -8,4 +9,10 @@ struct CheckResult
 	string details;
 }
 
-CheckResult function(string, string, string, string)[string] engines;
+struct SpamEngine
+{
+	CheckResult function(Message) check;
+	void function(Message) sendSpam, sendHam;
+}
+
+SpamEngine[string] engines;

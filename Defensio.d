@@ -1,34 +1,23 @@
 ﻿module Defensio;
 
-import Team15.Utils;
-import Team15.Http.Common;
-import Team15.LiteXML;
-
 import std.file;
 import std.string;
 import std.stream;
 
-CheckResult check(string author, string authorIP, string title, string content)
+import Team15.Utils;
+import Team15.Http.Common;
+import Team15.LiteXML;
+
+import SpamEngines;
+
+private:
+
+CheckResult check(Message message)
 {
-	auto config = splitlines(cast(string)read("data/defensio.txt"));
-	string key = config[0];
-	string client = config[1];
-
-	string[string] params = [
-		"client"[] : client,
-		"content" : content,
-		"platform" : "forum_bot",
-		"type" : "forum",
-		"author-ip" : authorIP,
-		"author-logged-in" : "true",
-		"title" : title
-	];
-	string url = "http://api.defensio.com/2.0/users/" ~ key ~ "/documents.xml";
-
-	auto xml = new XmlDocument(new MemoryStream(post(url, encodeUrlParameters(params))));
+	auto xml = postDocument(message);
 	auto result = xml["defensio-result"];
-	auto message = result.findChild("message");
-	enforce(result["status"].text == "success", "Defensio API failure" ~ (message ? ": " ~ message.text : ""));
+	auto messageNode = result.findChild("message");
+	enforce(result["status"].text == "success", "Defensio API failure" ~ (messageNode ? ": " ~ messageNode.text : ""));
 	return CheckResult(
 		result["allow"].text == "false",
 		format("spaminess: %s, classification: %s, profanity-match: %s",
@@ -39,6 +28,24 @@ CheckResult check(string author, string authorIP, string title, string content)
 	);
 }
 
-import SpamEngines;
+XmlDocument postDocument(Message message)
+{
+	auto config = splitlines(cast(string)read("data/defensio.txt"));
+	string key = config[0];
+	string client = config[1];
 
-static this() { engines["Defensio"] = &check; }
+	string[string] params = [
+		"client"[] : client,
+		"content" : message.text,
+		"platform" : "forum_bot",
+		"type" : "forum",
+		"author-ip" : message.IP,
+		"author-logged-in" : "true",
+		"title" : message.title
+	];
+	string url = "http://api.defensio.com/2.0/users/" ~ key ~ "/documents.xml";
+
+	return new XmlDocument(new MemoryStream(post(url, encodeUrlParameters(params))));
+}
+
+static this() { engines["Defensio"] = SpamEngine(&check); }

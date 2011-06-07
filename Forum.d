@@ -1,12 +1,14 @@
 module Forum;
 
+import std.string;
+import std.stream;
+import std.file;
+
 import Team15.Utils;
 import Team15.Http.Common;
 import Team15.LiteXML;
 
-import std.string;
-import std.stream;
-import std.file;
+import Common;
 
 string baseUrl, username, password;
 
@@ -16,11 +18,6 @@ static this()
 	baseUrl = lines[0];
 	username = lines[1];
 	password = lines[2];
-}
-
-struct Post
-{
-	string author, IP, title, message;
 }
 
 void login()
@@ -78,9 +75,9 @@ string[] getThreadsToModerate()
 	return ids;
 }
 
-Post getPost(string id)
+Message getPost(string id)
 {
-	Post post;
+	Message post;
 
 	auto html = download(baseUrl ~ "showpost.php?p=" ~ id);
 	auto doc = new XmlDocument(new MemoryStream(html));
@@ -92,7 +89,7 @@ Post getPost(string id)
 	html = html.replace(`50"></a>`, `50"/></a>`);
 	doc = new XmlDocument(new MemoryStream(html));
 	post.title = doc["html"]["body"]["div"]["div"]["div"]["form", 1]["table"]["tr", 1]["td"]["div"]["div"]["table"]["tr", 1]["td"]["input"].attributes["value"];
-	post.message = innerHTML(html, doc["html"]["body"]["div"]["div"]["div"]["form", 1]["table"]["tr", 1]["td"]["div"]["div"]["table", 1]["tr"]["td"]["table"]["tr"]["td"]["textarea"][0]);
+	post.text = innerHTML(html, doc["html"]["body"]["div"]["div"]["div"]["form", 1]["table"]["tr", 1]["td"]["div"]["div"]["table", 1]["tr"]["td"]["table"]["tr"]["td"]["textarea"][0]);
 
 	return post;
 }

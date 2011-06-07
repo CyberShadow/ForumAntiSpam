@@ -33,12 +33,12 @@ void main(string[] args)
 				log("IP: " ~ post.IP);
 				log("Title: " ~ post.title);
 				log("Content:");
-				foreach (line; splitlines(post.message))
+				foreach (line; splitlines(post.text))
 					log("> " ~ line);
 
 				string[] positiveEngines;
-				foreach (name, checker; engines)
-					with (checker(post.tupleof))
+				foreach (name, engine; engines)
+					with (engine.check(post))
 					{
 						log(format("%-20s: %s%s", name, isSpam ? "SPAM" : "not spam", details ? " (" ~ details ~ ")" : ""));
 						if (isSpam)

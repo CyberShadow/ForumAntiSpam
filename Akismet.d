@@ -1,12 +1,16 @@
 module Akismet;
 
-import Team15.Utils;
-import Team15.Http.Common;
-
 import std.file;
 import std.string;
 
-CheckResult check(string commentAuthor, string userIP, string commentTitle, string commentContent)
+import Team15.Utils;
+import Team15.Http.Common;
+
+import SpamEngines;
+
+private:
+
+CheckResult check(Message message)
 {
 	auto config = splitlines(cast(string)read("data/akismet.txt"));
 	string key = config[0];
@@ -14,9 +18,9 @@ CheckResult check(string commentAuthor, string userIP, string commentTitle, stri
 
 	string[string] params = [
 		"blog"[] : blog,
-		"comment_author" : commentAuthor,
-		"user_ip" : userIP,
-		"comment_content" : commentContent
+		"comment_author" : message.author,
+		"user_ip" : message.IP,
+		"comment_content" : message.text
 	];
 
 	auto result = post("http://" ~ key ~ ".rest.akismet.com/1.1/comment-check", encodeUrlParameters(params));
@@ -30,6 +34,4 @@ CheckResult check(string commentAuthor, string userIP, string commentTitle, stri
 		throw new Exception(result);
 }
 
-import SpamEngines;
-
-static this() { engines["Akismet"] = &check; }
+static this() { engines["Akismet"] = SpamEngine(&check); }

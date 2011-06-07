@@ -1,20 +1,24 @@
 module ProjectHoneyPot;
 
-import Team15.Utils;
-
 import std.socket;
 import std.file;
 import std.string;
 
+import Team15.Utils;
+
+import SpamEngines;
+
+private:
+
 const DAYS_THRESHOLD  =  3; // consider an IP match as a positive if it was last seen at most this many days ago
 const SCORE_THRESHOLD = 10; // consider an IP match as a positive if its ProjectHoneyPot score is at least this value
 
-CheckResult check(string, string IP, string, string)
+CheckResult check(Message message)
 {
-	with (phpCheck(IP))
+	with (phpCheck(message.IP))
 		return CheckResult(present && daysLastSeen <= DAYS_THRESHOLD && threatScore >= SCORE_THRESHOLD,
 			present ? format(
-				IP ~ " last seen: %d days ago, threat score: %d/255, type: %s",
+				message.IP ~ " last seen: %d days ago, threat score: %d/255, type: %s",
 				daysLastSeen,
 				threatScore,
 				(
@@ -23,15 +27,9 @@ CheckResult check(string, string IP, string, string)
 					((type & 0b0010) ? ["Harvester"      ] : []) ~
 					((type & 0b0100) ? ["Comment Spammer"] : [])
 				).join(", ")
-			) : IP ~ " not present in database / lookup error"
+			) : message.IP ~ " not present in database / lookup error"
 		);
 }
-
-import SpamEngines;
-
-static this() { engines["ProjectHoneyPot"] = &check; }
-
-private:
 
 struct PHPResult
 {
@@ -55,6 +53,8 @@ PHPResult phpCheck(string ip)
 	enforce(resultIP[0] == 127, "PHP API error");
 	return PHPResult(true, resultIP[1], resultIP[2], resultIP[3]);
 }
+
+static this() { engines["ProjectHoneyPot"] = SpamEngine(&check); }
 
 /+
 import std.stdio;
