@@ -44,11 +44,11 @@ void main(string[] args)
 
 				if (positiveEngines.length >= TOTAL_POSITIVE_THRESHOLD)
 				{
-					log("Deleting...");
+					log("Verdict: SPAM, deleting.");
 					deletePost(ID, "Spam (" ~ positiveEngines.join(", ") ~ ")");
 				}
 				else
-					log("Not deleting.");
+					log("Verdict: not spam.");
 
 				log("---------------------------------");
 				knownIDs[ID] = true;
