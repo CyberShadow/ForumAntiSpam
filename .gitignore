@@ -2,3 +2,4 @@
 *.exe
 Test*.d
 data
+logs
