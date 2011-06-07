@@ -4,7 +4,7 @@ import Team15.LiteXML;
 import std.stream;
 import std.date;
 
-const DAYS_THRESHOLD = 3; // consider an IP match as a positive if it was last seen this many days ago
+const DAYS_THRESHOLD = 3; // consider an IP match as a positive if it was last seen at most this many days ago
 
 bool check(string, string IP, string)
 {

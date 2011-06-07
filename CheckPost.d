@@ -10,5 +10,5 @@ void main(string[] args)
 	auto post = getPost(id);
 	printf("Author: %.*s\nIP: %.*s\nMessage: %.*s\n", post.tupleof); // Utf-8 hack
 	foreach (engine, result; checkAll(post.tupleof))
-		writefln("%s:\t %s", engine, result ? "SPAM" : "not spam");
+		writefln("%-30s: %s", engine, result ? "SPAM" : "not spam");
 }

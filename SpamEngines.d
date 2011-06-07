@@ -1,6 +1,6 @@
 module SpamEngines;
 
-import Akismet, StopForumSpam;
+import Akismet, StopForumSpam, ProjectHoneyPot;
 
 bool function(string, string, string)[string] engines;
 
