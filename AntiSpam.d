@@ -15,6 +15,7 @@ const TOTAL_POSITIVE_THRESHOLD = 2; // at least this many spam checkers must ret
 void main(string[] args)
 {
 	parseCommandLine(args);
+	logFormatVersion = 1;
 	auto log = createLogger("AntiSpam");
 
 	login();
