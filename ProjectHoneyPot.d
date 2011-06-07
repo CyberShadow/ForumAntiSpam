@@ -18,10 +18,10 @@ CheckResult check(string, string IP, string, string)
 				daysLastSeen,
 				threatScore,
 				(
-					((type & 0b0001) ? ["Search Engine"  ] : []) ~
-					((type & 0b0010) ? ["Suspicious"     ] : []) ~
-					((type & 0b0100) ? ["Harvester"      ] : []) ~
-					((type & 0b1000) ? ["Comment Spammer"] : [])
+					( type == 0      ? ["Search Engine"  ] : []) ~
+					((type & 0b0001) ? ["Suspicious"     ] : []) ~
+					((type & 0b0010) ? ["Harvester"      ] : []) ~
+					((type & 0b0100) ? ["Comment Spammer"] : [])
 				).join(", ")
 			) : IP ~ " not present in database / lookup error"
 		);
@@ -56,11 +56,12 @@ PHPResult phpCheck(string ip)
 	return PHPResult(true, resultIP[1], resultIP[2], resultIP[3]);
 }
 
-/*
+/+
 import std.stdio;
 void main(string[] args)
 {
-	auto result = phpCheck(args[1]);
+	/+auto result = phpCheck(args[1]);
 	foreach (i, t; result.tupleof)
-		writefln("%s: %d", result.tupleof[i].stringof, result.tupleof[i]);
-}*/
+		writefln("%s: %d", result.tupleof[i].stringof, result.tupleof[i]);+/
+	writefln("%s", check(null, args[1], null, null).details);
+}+/
