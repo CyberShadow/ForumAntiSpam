@@ -38,7 +38,8 @@ void main(string[] args)
 					with (checker(post.tupleof))
 					{
 						log(format("%-20s: %s%s", name, isSpam ? "SPAM" : "not spam", details ? " (" ~ details ~ ")" : ""));
-						positiveEngines ~= name;
+						if (isSpam)
+							positiveEngines ~= name;
 					}
 
 				if (positiveEngines.length >= TOTAL_POSITIVE_THRESHOLD)
