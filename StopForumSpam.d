@@ -2,9 +2,11 @@ module StopForumSpam;
 
 import std.stream;
 import std.date;
+import std.file;
 
 import Team15.Utils;
 import Team15.LiteXML;
+import Team15.Http.Common;
 
 import SpamEngines;
 
@@ -26,4 +28,17 @@ CheckResult check(Message message)
 	);
 }
 
-static this() { engines["StopForumSpam"] = SpamEngine(&check); }
+void sendSpam(Message message)
+{
+	auto key = cast(string)read("data/stopforumspam.txt");
+
+	auto result = download("http://www.stopforumspam.com/add.php?" ~ encodeUrlParameters([
+		"username"[] : message.author,
+		"ip_addr"    : message.IP,
+		"api_key"    : key
+	]));
+
+	enforce(result == "", result);
+}
+
+static this() { engines["StopForumSpam"] = SpamEngine(&check, &sendSpam); }

@@ -9,6 +9,10 @@ void main(string[] args)
 	auto id = args[1];
 	auto post = getPost(id);
 	foreach (name, engine; engines)
-		with (engine.check(post))
-			writefln("%-20s: %s%s", name, isSpam ? "SPAM" : "not spam", details ? " (" ~ details ~ ")" : "");
+		if (engine.sendHam)
+		{
+			writef("%s... ", name);
+			engine.sendHam(post);
+			writefln("Sent.");
+		}
 }

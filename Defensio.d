@@ -14,21 +14,19 @@ private:
 
 CheckResult check(Message message)
 {
-	auto xml = postDocument(message);
-	auto result = xml["defensio-result"];
-	auto messageNode = result.findChild("message");
-	enforce(result["status"].text == "success", "Defensio API failure" ~ (messageNode ? ": " ~ messageNode.text : ""));
+	auto result = postDocument(message);
 	return CheckResult(
 		result["allow"].text == "false",
-		format("spaminess: %s, classification: %s, profanity-match: %s",
+		format("spaminess: %s, classification: %s, profanity-match: %s, signature: %s",
 			result["spaminess"].text,
 			result["classification"].text,
-			result["profanity-match"].text
+			result["profanity-match"].text,
+			result["signature"].text
 		)
 	);
 }
 
-XmlDocument postDocument(Message message)
+XmlNode postDocument(Message message)
 {
 	auto config = splitlines(cast(string)read("data/defensio.txt"));
 	string key = config[0];
@@ -45,7 +43,32 @@ XmlDocument postDocument(Message message)
 	];
 	string url = "http://api.defensio.com/2.0/users/" ~ key ~ "/documents.xml";
 
-	return new XmlDocument(new MemoryStream(post(url, encodeUrlParameters(params))));
+	auto xml = new XmlDocument(new MemoryStream(post(url, encodeUrlParameters(params))));
+	auto result = xml["defensio-result"];
+	auto messageNode = result.findChild("message");
+	enforce(result["status"].text == "success", "Defensio API failure" ~ (messageNode ? ": " ~ messageNode.text : ""));
+
+	return result;
 }
 
-static this() { engines["Defensio"] = SpamEngine(&check); }
+public void postFeedback(string signature, bool isSpam)
+{
+	auto config = splitlines(cast(string)read("data/defensio.txt"));
+	string key = config[0];
+
+	string[string] params = [
+		"allow"[] : isSpam ? "false" : "true"
+	];
+	string url = "http://api.defensio.com/2.0/users/" ~ key ~ "/documents/" ~ signature ~ ".xml";
+
+	auto xml = new XmlDocument(new MemoryStream(put(url, encodeUrlParameters(params))));
+	/*scope(failure) */write("defensio-feedback-result.xml", xml.toString());
+	auto result = xml["defensio-result"];
+	auto messageNode = result.findChild("message");
+	enforce(result["status"].text == "success", "Defensio API failure" ~ (messageNode ? ": " ~ messageNode.text : ""));
+}
+
+void sendSpam(Message message) { postFeedback(postDocument(message)["signature"].text, true ); }
+void sendHam (Message message) { postFeedback(postDocument(message)["signature"].text, false); }
+
+static this() { engines["Defensio"] = SpamEngine(&check, &sendSpam, &sendHam); }
