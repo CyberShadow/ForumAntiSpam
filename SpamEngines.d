@@ -8,4 +8,4 @@ struct CheckResult
 	string details;
 }
 
-CheckResult function(string, string, string)[string] engines;
+CheckResult function(string, string, string, string)[string] engines;

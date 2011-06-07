@@ -6,7 +6,7 @@ import std.date;
 
 const DAYS_THRESHOLD = 3; // consider an IP match as a positive if it was last seen at most this many days ago
 
-CheckResult check(string, string IP, string)
+CheckResult check(string, string IP, string, string)
 {
 	auto xml = new XmlDocument(new MemoryStream(download("http://www.stopforumspam.com/api?ip=" ~ IP)));
 	auto response = xml["response"];

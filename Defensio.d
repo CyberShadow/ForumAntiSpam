@@ -8,7 +8,7 @@ import std.file;
 import std.string;
 import std.stream;
 
-CheckResult check(string author, string authorIP, string content)
+CheckResult check(string author, string authorIP, string title, string content)
 {
 	auto config = splitlines(cast(string)read("data/defensio.txt"));
 	string key = config[0];
@@ -21,6 +21,7 @@ CheckResult check(string author, string authorIP, string content)
 		"type" : "forum",
 		"author-ip" : authorIP,
 		"author-logged-in" : "true",
+		"title" : title
 	];
 	string url = "http://api.defensio.com/2.0/users/" ~ key ~ "/documents.xml";
 

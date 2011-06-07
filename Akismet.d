@@ -6,7 +6,7 @@ import Team15.Http.Common;
 import std.file;
 import std.string;
 
-CheckResult check(string commentAuthor, string userIP, string commentContent)
+CheckResult check(string commentAuthor, string userIP, string commentTitle, string commentContent)
 {
 	auto config = splitlines(cast(string)read("data/akismet.txt"));
 	string key = config[0];

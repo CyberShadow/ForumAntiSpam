@@ -20,7 +20,7 @@ static this()
 
 struct Post
 {
-	string author, IP, message;
+	string author, IP, title, message;
 }
 
 void login()
@@ -63,31 +63,24 @@ string[] getThreadsToModerate()
 
 Post getPost(string id)
 {
+	Post post;
+
 	auto html = download(baseUrl ~ "showpost.php?p=" ~ id);
 	auto doc = new XmlDocument(new MemoryStream(html));
-	Post post;
 	post.author = doc["html"]["body"]["form"]["table", 1]["tr", 1]["td"]["div"]["a"].text;
 	post.IP = doc["html"]["body"]["form"]["table", 1]["tr", 2]["td"]["a", 1]["img"].attributes["title"];
-	/*
-	auto postNodes = doc["html"]["body"]["form"]["table", 1]["tr", 1]["td", 1].findChildren("div");
-	foreach (node; postNodes)
-		if ("id" in node.attributes && node.attributes["id"].startsWith("post_message_"))
-		{
-			auto messageNodes = node.children;
-			post.message = strip(html[cast(size_t)messageNodes[0].startPos .. cast(size_t)messageNodes[$-1].endPos]);
-		}
-	*/
-	post.message = getPostMessage(id);
+
+	html = download(baseUrl ~ "editpost.php?do=editpost&p=" ~ id);
+	enforce(!html.contains("Invalid Thread specified"), "Can't get post vbCode");
+	html = html.replace(`50"></a>`, `50"/></a>`);
+	doc = new XmlDocument(new MemoryStream(html));
+	post.title = doc["html"]["body"]["div"]["div"]["div"]["form", 1]["table"]["tr", 1]["td"]["div"]["div"]["table"]["tr", 1]["td"]["input"].attributes["value"];
+	post.message = innerHTML(html, doc["html"]["body"]["div"]["div"]["div"]["form", 1]["table"]["tr", 1]["td"]["div"]["div"]["table", 1]["tr"]["td"]["table"]["tr"]["td"]["textarea"][0]);
+
 	return post;
 }
 
-string getPostMessage(string id)
+private string innerHTML(string html, XmlNode node)
 {
-	auto html = download(baseUrl ~ "editpost.php?do=editpost&p=" ~ id);
-	enforce(!html.contains("Invalid Thread specified"), "Can't get post vbCode");
-	html = html.replace(`50"></a>`, `50"/></a>`);
-	auto doc = new XmlDocument(new MemoryStream(html));
-	auto node = doc["html"]["body"]["div"]["div"]["div"]["form", 1]["table"]["tr", 1]["td"]["div"]["div"]["table", 1]["tr"]["td"]["table"]["tr"]["td"]["textarea"][0];
 	return html[cast(size_t)node.startPos..cast(size_t)node.endPos];
 }
-

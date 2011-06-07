@@ -9,7 +9,7 @@ import std.string;
 const DAYS_THRESHOLD  =  3; // consider an IP match as a positive if it was last seen at most this many days ago
 const SCORE_THRESHOLD = 10; // consider an IP match as a positive if its ProjectHoneyPot score is at least this value
 
-CheckResult check(string, string IP, string)
+CheckResult check(string, string IP, string, string)
 {
 	with (phpCheck(IP))
 		return CheckResult(present && daysLastSeen <= DAYS_THRESHOLD && threatScore >= SCORE_THRESHOLD,
