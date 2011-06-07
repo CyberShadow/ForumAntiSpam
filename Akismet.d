@@ -29,3 +29,7 @@ bool check(string commentAuthor, string userIP, string commentContent)
 	else
 		throw new Exception(result);
 }
+
+import SpamEngines;
+
+static this() { engines["Akismet"] = &check; }

@@ -84,6 +84,7 @@ Post getPost(string id)
 string getPostMessage(string id)
 {
 	auto html = download(baseUrl ~ "editpost.php?do=editpost&p=" ~ id);
+	enforce(!html.contains("Invalid Thread specified"), "Can't get post vbCode");
 	html = html.replace(`50"></a>`, `50"/></a>`);
 	auto doc = new XmlDocument(new MemoryStream(html));
 	auto node = doc["html"]["body"]["div"]["div"]["div"]["form", 1]["table"]["tr", 1]["td"]["div"]["div"]["table", 1]["tr"]["td"]["table"]["tr"]["td"]["textarea"][0];

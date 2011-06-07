@@ -2,7 +2,7 @@ import std.c.time;
 import std.stdio;
 
 import Forum;
-import Akismet;
+import SpamEngines;
 
 void main()
 {
@@ -17,8 +17,8 @@ void main()
 			{
 				writefln("Checking post %s", ID);
 				auto post = getPost(ID);
-				auto result = check(post.tupleof);
-				writefln("Post %s is %s", ID, result ? "SPAM" : "not spam");
+				foreach (engine, result; checkAll(post.tupleof))
+					writefln("%s:\t %s", engine, result ? "SPAM" : "not spam");
 
 				knownIDs[ID] = true;
 			}
