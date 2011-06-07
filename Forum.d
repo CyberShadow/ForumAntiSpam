@@ -52,6 +52,8 @@ string[] getPostsToModerate()
 {
 	auto html = download(baseUrl ~ "moderation.php?do=viewposts&type=moderated");
 	html = html.replace(`50"></a>`, `50"/></a>`);
+	if (html.contains("<strong>No posts found.</strong>"))
+		return null;
 	auto doc = new XmlDocument(new MemoryStream(html));
 	auto form = doc["html"]["body"]["div"]["div"]["div"]["table", 1]["tr"]["td", 2]["form"];
 	saveSecurityToken(form);
