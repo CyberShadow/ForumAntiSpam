@@ -9,10 +9,22 @@ import std.string;
 const DAYS_THRESHOLD  =  3; // consider an IP match as a positive if it was last seen at most this many days ago
 const SCORE_THRESHOLD = 10; // consider an IP match as a positive if its ProjectHoneyPot score is at least this value
 
-bool check(string, string IP, string)
+CheckResult check(string, string IP, string)
 {
 	with (phpCheck(IP))
-		return present && daysLastSeen <= DAYS_THRESHOLD && threatScore >= SCORE_THRESHOLD;
+		return CheckResult(present && daysLastSeen <= DAYS_THRESHOLD && threatScore >= SCORE_THRESHOLD,
+			present ? format(
+				IP ~ " last seen: %d days ago, threat score: %d/255, type: %s",
+				daysLastSeen,
+				threatScore,
+				(
+					((type & 0b0001) ? ["Search Engine"  ] : []) ~
+					((type & 0b0010) ? ["Suspicious"     ] : []) ~
+					((type & 0b0100) ? ["Harvester"      ] : []) ~
+					((type & 0b1000) ? ["Comment Spammer"] : [])
+				).join(", ")
+			) : IP ~ " not present in database / lookup error"
+		);
 }
 
 import SpamEngines;

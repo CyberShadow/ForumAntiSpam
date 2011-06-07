@@ -17,8 +17,9 @@ void main()
 			{
 				writefln("Checking post %s", ID);
 				auto post = getPost(ID);
-				foreach (engine, result; checkAll(post.tupleof))
-					writefln("%s:\t %s", engine, result ? "SPAM" : "not spam");
+				foreach (name, checker; engines)
+					with (checker(post.tupleof))
+						writefln("%-20s: %s%s", name, isSpam ? "SPAM" : "not spam", details ? " (" ~ details ~ ")" : "");
 
 				knownIDs[ID] = true;
 			}

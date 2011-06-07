@@ -6,7 +6,7 @@ import Team15.Http.Common;
 import std.file;
 import std.string;
 
-bool check(string commentAuthor, string userIP, string commentContent)
+CheckResult check(string commentAuthor, string userIP, string commentContent)
 {
 	auto config = splitlines(cast(string)read("data/akismet.txt"));
 	string key = config[0];
@@ -22,10 +22,10 @@ bool check(string commentAuthor, string userIP, string commentContent)
 	auto result = post("http://" ~ key ~ ".rest.akismet.com/1.1/comment-check", encodeUrlParameters(params));
 
 	if (result == "true")
-		return true;
+		return CheckResult(true);
 	else
 	if (result == "false")
-		return false;
+		return CheckResult(false);
 	else
 		throw new Exception(result);
 }
