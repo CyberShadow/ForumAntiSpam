@@ -41,4 +41,4 @@ void sendSpam(Message message)
 	enforce(result == "", result);
 }
 
-static this() { engines["StopForumSpam"] = SpamEngine(&check, &sendSpam); }
+static this() { engines["StopForumSpam"] = SpamEngine(&check/*, &sendSpam*/); }
