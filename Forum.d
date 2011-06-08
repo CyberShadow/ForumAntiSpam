@@ -89,7 +89,7 @@ Message getPost(string id)
 	html = html.replace(`50"></a>`, `50"/></a>`);
 	doc = new XmlDocument(new MemoryStream(html));
 	post.title = doc["html"]["body"]["div"]["div"]["div"]["form", 1]["table"]["tr", 1]["td"]["div"]["div"]["table"]["tr", 1]["td"]["input"].attributes["value"];
-	post.text = innerHTML(html, doc["html"]["body"]["div"]["div"]["div"]["form", 1]["table"]["tr", 1]["td"]["div"]["div"]["table", 1]["tr"]["td"]["table"]["tr"]["td"]["textarea"][0]);
+	post.text  = doc["html"]["body"]["div"]["div"]["div"]["form", 1]["table"]["tr", 1]["td"]["div"]["div"]["table", 1]["tr"]["td"]["table"]["tr"]["td"]["textarea"].text;
 
 	return post;
 }
@@ -121,9 +121,4 @@ void deletePost(string id, string reason)
 		html = post(baseUrl ~ "inlinemod.php", encodeUrlParameters(modParameters));
 		enforce(!html.contains("Please login again to verify the legitimacy of this request"), "Authorization loop");
 	}
-}
-
-private string innerHTML(string html, XmlNode node)
-{
-	return html[cast(size_t)node.startPos..cast(size_t)node.endPos];
 }
