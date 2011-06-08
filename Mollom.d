@@ -91,7 +91,7 @@ CheckContentResult postMessage(Message message)
 	return request!(CheckContentResult)("checkContent", CheckContentParams(message.title, message.text, message.author, message.IP));
 }
 
-bool sendFeedback(string sessionID, string feedback)
+public bool sendFeedback(string sessionID, string feedback)
 {
 	struct SendFeedbackParams
 	{
