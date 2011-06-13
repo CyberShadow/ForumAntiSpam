@@ -10,7 +10,7 @@ import Team15.CommandLine;
 import Forum;
 import SpamEngines;
 
-const TOTAL_POSITIVE_THRESHOLD = 3; // at least this many spam checkers must return a positive to delete this post
+const TOTAL_POSITIVE_THRESHOLD = 2; // at least this many spam checkers must return a positive to delete this post
 
 void main(string[] args)
 {
