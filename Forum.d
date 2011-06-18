@@ -47,8 +47,7 @@ alias getPostsToModerate getSecurityToken;
 
 string[] getPostsToModerate()
 {
-	auto html = download(baseUrl ~ "moderation.php?do=viewposts&type=moderated");
-	html = html.replace(`50"></a>`, `50"/></a>`);
+	auto html = fixHtml(download(baseUrl ~ "moderation.php?do=viewposts&type=moderated"));
 	if (html.contains("<strong>No posts found.</strong>"))
 		return null;
 	auto doc = new XmlDocument(new MemoryStream(html));
@@ -63,8 +62,7 @@ string[] getPostsToModerate()
 
 string[] getThreadsToModerate()
 {
-	auto html = download(baseUrl ~ "moderation.php?do=viewthreads&type=moderated");
-	html = html.replace(`50"></a>`, `50"/></a>`);
+	auto html = fixHtml(download(baseUrl ~ "moderation.php?do=viewthreads&type=moderated"));
 	auto doc = new XmlDocument(new MemoryStream(html));
 	auto form = doc["html"]["body"]["div"]["div"]["div"]["table", 1]["tr"]["td", 2]["form"];
 	saveSecurityToken(form);
@@ -79,14 +77,13 @@ Message getPost(string id)
 {
 	Message post;
 
-	auto html = download(baseUrl ~ "showpost.php?p=" ~ id);
+	auto html = fixHtml(download(baseUrl ~ "showpost.php?p=" ~ id));
 	auto doc = new XmlDocument(new MemoryStream(html));
 	post.author = doc["html"]["body"]["form"]["table", 1]["tr", 1]["td"]["div"]["a"].text;
 	post.IP = doc["html"]["body"]["form"]["table", 1]["tr", 2]["td"]["a", 1]["img"].attributes["title"];
 
-	html = download(baseUrl ~ "editpost.php?do=editpost&p=" ~ id);
+	html = fixHtml(download(baseUrl ~ "editpost.php?do=editpost&p=" ~ id));
 	enforce(!html.contains("Invalid Thread specified"), "Can't get post vbCode");
-	html = html.replace(`50"></a>`, `50"/></a>`);
 	doc = new XmlDocument(new MemoryStream(html));
 	post.title = doc["html"]["body"]["div"]["div"]["div"]["form", 1]["table"]["tr", 1]["td"]["div"]["div"]["table"]["tr", 1]["td"]["input"].attributes["value"];
 	post.text  = doc["html"]["body"]["div"]["div"]["div"]["form", 1]["table"]["tr", 1]["td"]["div"]["div"]["table", 1]["tr"]["td"]["table"]["tr"]["td"]["textarea"].text;
@@ -103,11 +100,10 @@ void deletePost(string id, string reason)
 		"deletetype"      : "1",
 		"deletereason"    : reason
 	];
-	auto html = post(baseUrl ~ "inlinemod.php", encodeUrlParameters(modParameters));
+	auto html = fixHtml(post(baseUrl ~ "inlinemod.php", encodeUrlParameters(modParameters)));
 
 	if (html.contains("Please login again to verify the legitimacy of this request"))
 	{
-		html = html.replace(`50"></a>`, `50"/></a>`);
 		auto doc = new XmlDocument(new MemoryStream(html));
 		auto form = doc["html"]["body"]["div"]["div"]["div"]["table", 1]["tr", 1]["td"]["div"]["div"]["div"]["form"];
 		string[string] parameters;
@@ -121,4 +117,13 @@ void deletePost(string id, string reason)
 		html = post(baseUrl ~ "inlinemod.php", encodeUrlParameters(modParameters));
 		enforce(!html.contains("Please login again to verify the legitimacy of this request"), "Authorization loop");
 	}
+}
+
+string fixHtml(string html)
+{
+	return html
+		.replace(`50"></a>`, `50"/></a>`)
+		.replace(`<br>`, `<br/>`)
+		.replace(`<hr size="1" noshade>`, `<hr/>`)
+	;
 }
