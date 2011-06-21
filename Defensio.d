@@ -16,7 +16,7 @@ CheckResult check(Message message)
 {
 	auto result = postDocument(message);
 	return CheckResult(
-		result["allow"].text == "false",
+		result["allow"].text == "false" && result["spaminess"].text == "0.99",
 		format("allow: %s, spaminess: %s, classification: %s, profanity-match: %s, signature: %s",
 			result["allow"].text,
 			result["spaminess"].text,
