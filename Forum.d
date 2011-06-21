@@ -80,7 +80,8 @@ Message getPost(string id)
 	auto html = fixHtml(download(baseUrl ~ "showpost.php?p=" ~ id));
 	auto doc = new XmlDocument(new MemoryStream(html));
 	post.author = doc["html"]["body"]["form"]["table", 1]["tr", 1]["td"]["div"]["a"].text;
-	post.IP = doc["html"]["body"]["form"]["table", 1]["tr", 2]["td"]["a", 1]["img"].attributes["title"];
+	post.IP = doc["html"]["body"]["form"]["table", 1]["tr", 2]["td"]["a", 2]["img"].attributes["title"];
+	enforce(post.IP.split(".").length == 4);
 
 	html = fixHtml(download(baseUrl ~ "editpost.php?do=editpost&p=" ~ id));
 	enforce(!html.contains("Invalid Thread specified"), "Can't get post vbCode");
