@@ -93,6 +93,13 @@ Message getPost(string id)
 	return post;
 }
 
+/// Present in DB and not soft-deleted
+bool postExists(string id)
+{
+	auto html = fixHtml(download(baseUrl ~ "editpost.php?do=editpost&p=" ~ id));
+	return !html.contains("Invalid Post specified");
+}
+
 void deletePost(string id, string reason)
 {
 	auto modParameters = [
