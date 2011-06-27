@@ -1,3 +1,5 @@
+module SendMollomSpam;
+
 import std.stdio;
 
 import Mollom;

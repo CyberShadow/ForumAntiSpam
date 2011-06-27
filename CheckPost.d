@@ -1,3 +1,5 @@
+module CheckPost;
+
 import std.stdio;
 
 import Forum;

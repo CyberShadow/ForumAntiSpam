@@ -1,3 +1,5 @@
+module SendDefensioHam;
+
 import std.stdio;
 
 import Defensio;

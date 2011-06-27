@@ -1,3 +1,5 @@
+module ShowPost;
+
 import std.stdio;
 
 import Forum;

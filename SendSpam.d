@@ -1,3 +1,5 @@
+module SendSpam;
+
 import std.stdio;
 
 import Forum;

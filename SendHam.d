@@ -1,3 +1,5 @@
+module SendHam;
+
 import std.stdio;
 
 import Forum;

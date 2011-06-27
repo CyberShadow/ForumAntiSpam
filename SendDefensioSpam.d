@@ -1,3 +1,5 @@
+module SendDefensioSpam;
+
 import std.stdio;
 
 import Defensio;
