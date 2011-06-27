@@ -85,7 +85,7 @@ Message getPost(string id)
 	enforce(post.IP.split(".").length == 4);
 
 	html = fixHtml(download(baseUrl ~ "editpost.php?do=editpost&p=" ~ id));
-	enforce(!html.contains("Invalid Thread specified"), "Can't get post vbCode");
+	enforce(!isInvalidPost(html), "Can't get post vbCode");
 	doc = new XmlDocument(new MemoryStream(html));
 	post.title = doc["html"]["body"]["div"]["div"]["div"]["form", 1]["table"]["tr", 1]["td"]["div"]["div"]["table"]["tr", 1]["td"]["input"].attributes["value"];
 	post.text  = doc["html"]["body"]["div"]["div"]["div"]["form", 1]["table"]["tr", 1]["td"]["div"]["div"]["table", 1]["tr"]["td"]["table"]["tr"]["td"]["textarea"].text;
@@ -97,7 +97,7 @@ Message getPost(string id)
 bool postExists(string id)
 {
 	auto html = fixHtml(download(baseUrl ~ "editpost.php?do=editpost&p=" ~ id));
-	return !html.contains("Invalid Post specified");
+	return !isInvalidPost(html);
 }
 
 void deletePost(string id, string reason)
@@ -135,4 +135,9 @@ string fixHtml(string html)
 		.replace(`<br>`, `<br/>`)
 		.replace(`<hr size="1" noshade>`, `<hr/>`)
 	;
+}
+
+bool isInvalidPost(string html)
+{
+	return html.contains("Invalid Thread specified") || html.contains("Invalid Post specified");
 }
