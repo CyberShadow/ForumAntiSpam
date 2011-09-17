@@ -1,4 +1,5 @@
 *.html
+*.xml
 *.exe
 Test*.d
 data

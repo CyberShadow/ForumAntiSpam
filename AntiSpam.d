@@ -9,6 +9,7 @@ import ae.utils.log;
 
 import Forum;
 import SpamEngines;
+import EnabledSpamEngines;
 
 const TOTAL_POSITIVE_THRESHOLD = 2; // at least this many spam checkers must return a positive to delete this post
 

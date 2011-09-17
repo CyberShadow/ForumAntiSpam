@@ -4,6 +4,7 @@ import std.stdio;
 
 import Forum;
 import SpamEngines;
+import EnabledSpamEngines;
 
 void main(string[] args)
 {

@@ -1,6 +1,5 @@
 module SpamEngines;
 
-import /*Akismet, */StopForumSpam, ProjectHoneyPot, Defensio, Mollom;
 public import Common;
 
 struct CheckResult
