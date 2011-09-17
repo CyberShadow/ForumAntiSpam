@@ -44,7 +44,7 @@ R request(R, T)(string methodName, T params)
 	auto config = splitLines(cast(string)read("data/mollom.txt"));
 	string publicKey = config[0];
 	string privateKey = config[1];
-	string time = Clock.currTime(UTC()).toISOExtString();
+	string time = formatTime(`Y-m-d\TH:i:s.EO`, Clock.currTime(UTC()));
 	string nonce = randomString();
 	string hash = Base64.encode(hmac_sha1(time ~ ':' ~ nonce ~ ':' ~ privateKey, cast(ubyte[])privateKey)).idup;
 
@@ -53,10 +53,11 @@ R request(R, T)(string methodName, T params)
 	params.hash = hash;
 	params.nonce = nonce;
 
-	auto xml = formatXmlRpcCall("mollom." ~ methodName, params);
-	auto result = post(server ~ "/1.0", xml.toString());
-	xml = new XmlDocument(new MemoryStream(cast(char[])result));
-	return parseXmlRpcResponse!(R)(xml);
+	auto request = formatXmlRpcCall("mollom." ~ methodName, params);
+	scope(failure) std.file.write("mollom-request.xml", request.toString());
+	auto result = post(server ~ "/1.0", request.toString());
+	auto response = new XmlDocument(new MemoryStream(cast(char[])result));
+	return parseXmlRpcResponse!(R)(response);
 }
 
 struct CheckContentResult
