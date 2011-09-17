@@ -1,12 +1,14 @@
 module StopForumSpam;
 
 import std.stream;
-import std.date;
+import std.datetime;
 import std.file;
+import std.exception;
 
-import Team15.Utils;
-import Team15.LiteXML;
-import Team15.Http.Common;
+import ae.net.http.common;
+import ae.utils.xml;
+import ae.utils.cmd;
+import ae.utils.time;
 
 import SpamEngines;
 
@@ -16,14 +18,14 @@ const DAYS_THRESHOLD = 3; // consider an IP match as a positive if it was last s
 
 CheckResult check(Message message)
 {
-	auto xml = new XmlDocument(new MemoryStream(download("http://www.stopforumspam.com/api?ip=" ~ message.IP)));
+	auto xml = new XmlDocument(new MemoryStream(cast(char[])download("http://www.stopforumspam.com/api?ip=" ~ message.IP)));
 	auto response = xml["response"];
 	enforce(response.attributes["success"] == "true", "StopForumSpam API error");
 	if (response["appears"].text == "no")
 		return CheckResult(false, "appears=false");
-	auto date = parse(response["lastseen"].text);
+	auto date = parseTime("Y-m-d H:i:s", response["lastseen"].text);
 	return CheckResult(
-		date + DAYS_THRESHOLD*TicksPerDay > getUTCtime(),
+		date + dur!"days"(DAYS_THRESHOLD) > Clock.currTime(),
 		message.IP ~ " last seen: " ~ response["lastseen"].text ~ ", frequency: " ~ response["frequency"].text
 	);
 }

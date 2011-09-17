@@ -2,9 +2,10 @@ module Akismet;
 
 import std.file;
 import std.string;
+import std.exception;
 
-import Team15.Utils;
-import Team15.Http.Common;
+import ae.net.http.common;
+import ae.utils.cmd;
 
 import SpamEngines;
 
@@ -12,7 +13,7 @@ private:
 
 string request(Message message, string request)
 {
-	auto config = splitlines(cast(string)read("data/akismet.txt"));
+	auto config = splitLines(cast(string)read("data/akismet.txt"));
 	string key = config[0];
 	string blog = config[1];
 

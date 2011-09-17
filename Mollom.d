@@ -3,13 +3,16 @@
 import std.file;
 import std.string;
 import std.base64;
-import std.date;
+import std.datetime;
 import std.random;
 import std.stream;
 
-import Team15.Utils;
-import Team15.LiteXML;
-import Team15.Http.XMLRPC;
+import ae.utils.xml;
+import ae.utils.xmlrpc;
+import ae.utils.time;
+import ae.utils.text;
+import ae.utils.digest;
+import ae.utils.cmd;
 
 import SpamEngines;
 
@@ -32,28 +35,18 @@ R request(R, T)(string methodName, T params)
 {
 	if (server is null)
 	{
-		server = initialServers[rand%$];
+		server = initialServers[uniform(0, $)];
 
 		auto serverList = request!(string[])("getServerList", ServerParams());
-		server = serverList[rand%$];
+		server = serverList[uniform(0, $)];
 	}
 
-	auto config = splitlines(cast(string)read("data/mollom.txt"));
+	auto config = splitLines(cast(string)read("data/mollom.txt"));
 	string publicKey = config[0];
 	string privateKey = config[1];
-	auto t = getUTCtime();
-	string time = format("%04d-%02d-%02dT%02d:%02d:%02d.%03d%s",
-		YearFromTime(t),
-		MonthFromTime(t)+1,
-		DateFromTime(t),
-		HourFromTime(t),
-		MinFromTime(t),
-		SecFromTime(t),
-		msFromTime(t),
-		"+0000"
-	);
+	string time = Clock.currTime(UTC()).toISOExtString();
 	string nonce = randomString();
-	string hash = encode(cast(string)hmac_sha1(time ~ ':' ~ nonce ~ ':' ~ privateKey, cast(ubyte[])privateKey));
+	string hash = Base64.encode(hmac_sha1(time ~ ':' ~ nonce ~ ':' ~ privateKey, cast(ubyte[])privateKey)).idup;
 
 	params.public_key = publicKey;
 	params.time = time;
@@ -62,7 +55,7 @@ R request(R, T)(string methodName, T params)
 
 	auto xml = formatXmlRpcCall("mollom." ~ methodName, params);
 	auto result = post(server ~ "/1.0", xml.toString());
-	xml = new XmlDocument(new MemoryStream(result));
+	xml = new XmlDocument(new MemoryStream(cast(char[])result));
 	return parseXmlRpcResponse!(R)(xml);
 }
 

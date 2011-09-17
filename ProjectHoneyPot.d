@@ -4,8 +4,6 @@ import std.socket;
 import std.file;
 import std.string;
 
-import Team15.Utils;
-
 import SpamEngines;
 
 private:
@@ -15,7 +13,8 @@ const SCORE_THRESHOLD = 10; // consider an IP match as a positive if its Project
 
 CheckResult check(Message message)
 {
-	with (phpCheck(message.IP))
+	auto result = phpCheck(message.IP);
+	with (result)
 		return CheckResult(present && daysLastSeen <= DAYS_THRESHOLD && threatScore >= SCORE_THRESHOLD,
 			present ? format(
 				message.IP ~ " last seen: %d days ago, threat score: %d/255, type: %s",

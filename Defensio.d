@@ -3,10 +3,11 @@
 import std.file;
 import std.string;
 import std.stream;
+import std.exception;
 
-import Team15.Utils;
-import Team15.Http.Common;
-import Team15.LiteXML;
+import ae.net.http.common;
+import ae.utils.xml;
+import ae.utils.cmd;
 
 import SpamEngines;
 
@@ -29,7 +30,7 @@ CheckResult check(Message message)
 
 XmlNode postDocument(Message message)
 {
-	auto config = splitlines(cast(string)read("data/defensio.txt"));
+	auto config = splitLines(cast(string)read("data/defensio.txt"));
 	string key = config[0];
 	string client = config[1];
 
@@ -44,7 +45,7 @@ XmlNode postDocument(Message message)
 	];
 	string url = "http://api.defensio.com/2.0/users/" ~ key ~ "/documents.xml";
 
-	auto xml = new XmlDocument(new MemoryStream(post(url, encodeUrlParameters(params))));
+	auto xml = new XmlDocument(new MemoryStream(cast(char[])post(url, encodeUrlParameters(params))));
 	auto result = xml["defensio-result"];
 	auto messageNode = result.findChild("message");
 	enforce(result["status"].text == "success", "Defensio API failure" ~ (messageNode ? ": " ~ messageNode.text : ""));
@@ -54,7 +55,7 @@ XmlNode postDocument(Message message)
 
 public void postFeedback(string signature, bool isSpam)
 {
-	auto config = splitlines(cast(string)read("data/defensio.txt"));
+	auto config = splitLines(cast(string)read("data/defensio.txt"));
 	string key = config[0];
 
 	string[string] params = [
@@ -62,7 +63,7 @@ public void postFeedback(string signature, bool isSpam)
 	];
 	string url = "http://api.defensio.com/2.0/users/" ~ key ~ "/documents/" ~ signature ~ ".xml";
 
-	auto xml = new XmlDocument(new MemoryStream(put(url, encodeUrlParameters(params))));
+	auto xml = new XmlDocument(new MemoryStream(cast(char[])put(url, encodeUrlParameters(params))));
 	scope(failure) write("defensio-feedback-result.xml", xml.toString());
 	auto result = xml["defensio-result"];
 	auto messageNode = result.findChild("message");

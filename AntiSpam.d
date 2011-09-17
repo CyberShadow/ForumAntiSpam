@@ -1,11 +1,11 @@
 module AntiSpam;
 
-import std.c.time;
 import std.stdio;
 import std.string;
+import std.getopt;
+import core.thread;
 
-import Team15.Logging;
-import Team15.CommandLine;
+import ae.utils.log;
 
 import Forum;
 import SpamEngines;
@@ -14,9 +14,10 @@ const TOTAL_POSITIVE_THRESHOLD = 2; // at least this many spam checkers must ret
 
 void main(string[] args)
 {
-	parseCommandLine(args);
-	logFormatVersion = 1;
-	auto log = createLogger("AntiSpam");
+	bool quiet = false;
+	getopt(args, std.getopt.config.bundling,
+		"q|quiet", &quiet);
+	auto log = quiet ? new FileLogger("AntiSpam") : new FileAndConsoleLogger("AntiSpam");
 
 	login();
 
@@ -33,17 +34,20 @@ void main(string[] args)
 				log("IP: " ~ post.IP);
 				log("Title: " ~ post.title);
 				log("Content:");
-				foreach (line; splitlines(post.text))
+				foreach (line; splitLines(post.text))
 					log("> " ~ line);
 
 				string[] positiveEngines;
 				foreach (name, engine; engines)
-					with (engine.check(post))
+				{
+					auto result = engine.check(post);
+					with (result)
 					{
 						log(format("%-20s: %s%s", name, isSpam ? "SPAM" : "not spam", details ? " (" ~ details ~ ")" : ""));
 						if (isSpam)
 							positiveEngines ~= name;
 					}
+				}
 
 				if (positiveEngines.length >= TOTAL_POSITIVE_THRESHOLD)
 				{
@@ -62,6 +66,6 @@ void main(string[] args)
 				knownIDs[ID] = true;
 			}
 
-		sleep(30);
+		Thread.sleep(dur!"seconds"(30));
 	}
 }

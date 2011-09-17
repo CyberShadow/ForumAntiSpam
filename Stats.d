@@ -3,7 +3,7 @@ module Stats;
 import std.stdio;
 import std.file;
 import std.string;
-import Team15.Utils;
+
 import Forum;
 
 void main()
@@ -14,10 +14,10 @@ void main()
 	string postID;
 	int[string] engineTotal, engineFalsePositive, engineFalseNegative;
 	foreach (file; listdir("logs", "*.log"))
-		foreach (line; splitlines(cast(string)read(file)))
+		foreach (line; splitLines(cast(string)read(file)))
 			if (line.startsWith("["))
 			{
-				line = line[line.find("] ")+2..$];
+				line = line[line.indexOf("] ")+2..$];
 				if (line.startsWith("Checking post "))
 				{
 					postID = line[14..$];
