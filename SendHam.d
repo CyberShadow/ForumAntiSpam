@@ -3,7 +3,7 @@ module SendHam;
 import std.stdio;
 
 import Forum;
-import SpamEngines;
+import SpamCommon;
 
 void main(string[] args)
 {

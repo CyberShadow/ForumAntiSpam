@@ -3,8 +3,8 @@ module SendSpam;
 import std.stdio;
 
 import Forum;
+import SpamCommon;
 import SpamEngines;
-import EnabledSpamEngines;
 
 void main(string[] args)
 {

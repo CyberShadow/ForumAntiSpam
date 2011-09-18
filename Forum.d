@@ -1,6 +1,7 @@
 module Forum;
 
 import std.string;
+import std.conv;
 import std.array;
 import std.stream;
 import std.file;
@@ -79,6 +80,7 @@ string[] getThreadsToModerate()
 Message getPost(string id)
 {
 	Message post;
+	post.id = to!int(id);
 
 	auto html = fixHtml(download(baseUrl ~ "showpost.php?p=" ~ id));
 	auto doc = new XmlDocument(new MemoryStream(cast(char[])html));

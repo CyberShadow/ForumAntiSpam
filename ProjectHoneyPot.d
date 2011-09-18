@@ -4,7 +4,7 @@ import std.socket;
 import std.file;
 import std.string;
 
-import SpamEngines;
+import SpamCommon;
 
 private:
 
@@ -53,7 +53,7 @@ PHPResult phpCheck(string ip)
 	return PHPResult(true, resultIP[1], resultIP[2], resultIP[3]);
 }
 
-static this() { engines["ProjectHoneyPot"] = SpamEngine(&check); }
+static this() { engines ~= SpamEngine("ProjectHoneyPot", &check); }
 
 /+
 import std.stdio;

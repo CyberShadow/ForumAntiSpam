@@ -3,13 +3,36 @@ module AntiSpam;
 import std.stdio;
 import std.string;
 import std.getopt;
-import core.thread;
 
 import ae.utils.log;
+import ae.sys.timing;
+import ae.net.asockets;
+import ae.net.http.server;
 
 import Forum;
+import SpamCommon;
 import SpamEngines;
-import EnabledSpamEngines;
+
+Logger log;
+
+class AntiSpamFrontend
+{
+	enum HTTP_PORT = 58904;
+
+	HttpServer http;
+
+	this()
+	{
+		http = new HttpServer();
+		http.handleRequest = &onRequest;
+		http.listen(HTTP_PORT, "localhost");
+	}
+
+	HttpResponse onRequest(HttpRequest request, ClientSocket conn)
+	{
+		return null;
+	}
+}
 
 const TOTAL_POSITIVE_THRESHOLD = 2; // at least this many spam checkers must return a positive to delete this post
 
@@ -18,13 +41,13 @@ void main(string[] args)
 	bool quiet = false;
 	getopt(args, std.getopt.config.bundling,
 		"q|quiet", &quiet);
-	auto log = quiet ? new FileLogger("AntiSpam") : new FileAndConsoleLogger("AntiSpam");
+	log = quiet ? new FileLogger("AntiSpam") : new FileAndConsoleLogger("AntiSpam");
 
 	login();
 
 	bool[string] knownIDs;
-	while (true)
-	{
+
+	setInterval({
 		string[] IDs = getPostsToModerate() ~ getThreadsToModerate();
 		foreach (ID; IDs)
 			if (!(ID in knownIDs))
@@ -39,14 +62,14 @@ void main(string[] args)
 					log("> " ~ line);
 
 				string[] positiveEngines;
-				foreach (name, engine; engines)
+				foreach (engine; engines)
 				{
 					auto result = engine.check(post);
 					with (result)
 					{
-						log(format("%-20s: %s%s", name, isSpam ? "SPAM" : "not spam", details ? " (" ~ details ~ ")" : ""));
+						log(format("%-20s: %s%s", engine.name, isSpam ? "SPAM" : "not spam", details ? " (" ~ details ~ ")" : ""));
 						if (isSpam)
-							positiveEngines ~= name;
+							positiveEngines ~= engine.name;
 					}
 				}
 
@@ -66,7 +89,8 @@ void main(string[] args)
 				log("###########################################################################################");
 				knownIDs[ID] = true;
 			}
+	}, TickDuration.from!"seconds"(30));
 
-		Thread.sleep(dur!"seconds"(30));
-	}
+	new AntiSpamFrontend();
+	socketManager.loop();
 }

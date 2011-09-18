@@ -10,7 +10,7 @@ import ae.utils.xml;
 import ae.utils.cmd;
 import ae.utils.time;
 
-import SpamEngines;
+import SpamCommon;
 
 private:
 
@@ -30,17 +30,18 @@ CheckResult check(Message message)
 	);
 }
 
-void sendSpam(Message message)
+void sendSpam(Message message, CheckResult checkResult)
 {
 	auto key = cast(string)read("data/stopforumspam.txt");
 
 	auto result = download("http://www.stopforumspam.com/add.php?" ~ encodeUrlParameters([
 		"username"[] : message.author,
 		"ip_addr"    : message.IP,
+		"email"      : null,
 		"api_key"    : key
 	]));
 
 	enforce(result == "", result);
 }
 
-static this() { engines["StopForumSpam"] = SpamEngine(&check/*, &sendSpam*/); }
+static this() { engines ~= SpamEngine("StopForumSpam", &check, &sendSpam); }

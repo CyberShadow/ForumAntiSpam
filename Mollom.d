@@ -14,7 +14,7 @@ import ae.utils.text;
 import ae.utils.digest;
 import ae.utils.cmd;
 
-import SpamEngines;
+import SpamCommon;
 
 private:
 
@@ -109,9 +109,9 @@ CheckResult check(Message message)
 	);
 }
 
-void sendSpam(Message message)
+void sendSpam(Message message, CheckResult checkResult)
 {
-	sendFeedback(postMessage(message).session_id, "spam");
+	sendFeedback(checkResult.session, "spam");
 }
 
-static this() { engines["Mollom"] = SpamEngine(&check, &sendSpam); }
+static this() { engines ~= SpamEngine("Mollom", &check, &sendSpam); }

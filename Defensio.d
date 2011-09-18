@@ -9,7 +9,7 @@ import ae.net.http.common;
 import ae.utils.xml;
 import ae.utils.cmd;
 
-import SpamEngines;
+import SpamCommon;
 
 private:
 
@@ -70,7 +70,7 @@ public void postFeedback(string signature, bool isSpam)
 	enforce(result["status"].text == "success", "Defensio API failure" ~ (messageNode ? ": " ~ messageNode.text : ""));
 }
 
-void sendSpam(Message message) { postFeedback(postDocument(message)["signature"].text, true ); }
-void sendHam (Message message) { postFeedback(postDocument(message)["signature"].text, false); }
+void sendSpam(Message message, CheckResult checkResult) { postFeedback(checkResult.session, true ); }
+void sendHam (Message message, CheckResult checkResult) { postFeedback(checkResult.session, false); }
 
-static this() { engines["Defensio"] = SpamEngine(&check, &sendSpam, &sendHam); }
+static this() { engines ~= SpamEngine("Defensio", &check, &sendSpam, &sendHam); }

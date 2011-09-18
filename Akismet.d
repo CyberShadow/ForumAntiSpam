@@ -7,7 +7,7 @@ import std.exception;
 import ae.net.http.common;
 import ae.utils.cmd;
 
-import SpamEngines;
+import SpamCommon;
 
 private:
 
@@ -35,16 +35,16 @@ CheckResult check(Message message)
 	return CheckResult(result == "true");
 }
 
-void sendSpam(Message message)
+void sendSpam(Message message, CheckResult checkResult)
 {
 	auto result = request(message, "submit-spam");
 	enforce(result == "Thanks for making the web a better place.", result);
 }
 
-void sendHam(Message message)
+void sendHam(Message message, CheckResult checkResult)
 {
 	auto result = request(message, "submit-ham");
 	enforce(result == "Thanks for making the web a better place.", result);
 }
 
-static this() { engines["Akismet"] = SpamEngine(&check, &sendSpam, &sendHam); }
+static this() { engines ~= SpamEngine("Akismet", &check, &sendSpam, &sendHam); }
