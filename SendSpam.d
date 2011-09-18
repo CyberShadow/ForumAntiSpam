@@ -11,11 +11,11 @@ void main(string[] args)
 	login();
 	auto id = args[1];
 	auto post = getPost(id);
-	foreach (name, engine; engines)
-		if (engine.sendSpam)
+	foreach (engine; engines)
+		if (engine.acceptsFeedback(true))
 		{
-			writef("%s... ", name);
-			engine.sendSpam(post);
+			writef("%s... ", engine.name);
+			engine.sendFeedback(post, true);
 			writefln("Sent.");
 		}
 }

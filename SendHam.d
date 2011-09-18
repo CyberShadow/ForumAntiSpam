@@ -10,11 +10,11 @@ void main(string[] args)
 	login();
 	auto id = args[1];
 	auto post = getPost(id);
-	foreach (name, engine; engines)
-		if (engine.sendHam)
+	foreach (engine; engines)
+		if (engine.acceptsFeedback(false))
 		{
-			writef("%s... ", name);
-			engine.sendHam(post);
+			writef("%s... ", engine.name);
+			engine.sendFeedback(post, false);
 			writefln("Sent.");
 		}
 }
