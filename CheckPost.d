@@ -8,7 +8,6 @@ import engines.All;
 
 void main(string[] args)
 {
-	login();
 	auto id = args[1];
 	auto post = getPost(id);
 	foreach (engine; spamEngines)

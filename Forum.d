@@ -27,8 +27,12 @@ static this()
 	publicBaseUrl = lines.length>3 ? lines[3] : baseUrl;
 }
 
-void login()
+bool loggedIn;
+
+void loginCheck()
 {
+	if (loggedIn)
+		return;
 	if (exists(cookieFile)) remove(cookieFile);
 	enableCookies();
 	auto result = post(baseUrl ~ "login.php", encodeUrlParameters([
@@ -39,6 +43,7 @@ void login()
 	]));
 	scope(failure) write("error.html", result);
 	enforce(result.contains("Thank you for logging in"), "Login failed");
+	loggedIn = true;
 }
 
 string securityToken;
@@ -54,6 +59,7 @@ alias getPostsToModerate getSecurityToken;
 
 string[] getPostsToModerate()
 {
+	loginCheck();
 	auto html = fixHtml(download(baseUrl ~ "moderation.php?do=viewposts&type=moderated"));
 	if (html.contains("<strong>No posts found.</strong>"))
 		return null;
@@ -69,6 +75,7 @@ string[] getPostsToModerate()
 
 string[] getThreadsToModerate()
 {
+	loginCheck();
 	auto html = fixHtml(download(baseUrl ~ "moderation.php?do=viewthreads&type=moderated"));
 	auto doc = new XmlDocument(new MemoryStream(cast(char[])html));
 	auto form = doc["html"]["body"]["div"]["div"]["div"]["table", 1]["tr"]["td", 2]["form"];
@@ -94,6 +101,7 @@ Post getPost(string id)
 
 	post.id = to!int(id);
 
+	loginCheck();
 	auto html = fixHtml(download(baseUrl ~ "showpost.php?p=" ~ id));
 	auto doc = new XmlDocument(new MemoryStream(cast(char[])html));
 	post.user = doc["html"]["body"]["form"]["table", 1]["tr", 1]["td"]["div"]["a"].text;
@@ -119,20 +127,15 @@ Post getPost(string id)
 /// Present in DB and not soft-deleted
 bool postExists(string id)
 {
+	loginCheck();
 	auto html = fixHtml(download(baseUrl ~ "editpost.php?do=editpost&p=" ~ id));
 	return !isInvalidPost(html);
 }
 
-void deletePost(string id, string reason)
+void modAction(string action, string[string] modParameters)
 {
-	auto modParameters = [
-		"securitytoken"[] : securityToken,
-		"postids"         : id,
-		"do"              : "dodeleteposts",
-		"deletetype"      : "1",
-		"deletereason"    : reason
-	];
-	auto html = fixHtml(post(baseUrl ~ "inlinemod.php", encodeUrlParameters(modParameters)));
+	loginCheck();
+	auto html = fixHtml(post(baseUrl ~ action, encodeUrlParameters(modParameters)));
 
 	if (html.contains("Please login again to verify the legitimacy of this request"))
 	{
@@ -146,9 +149,20 @@ void deletePost(string id, string reason)
 		html = post(baseUrl ~ "login.php?do=login", encodeUrlParameters(parameters));
 		enforce(html.contains("Thank you for logging in"), "Login failed");
 
-		html = post(baseUrl ~ "inlinemod.php", encodeUrlParameters(modParameters));
+		html = post(baseUrl ~ action, encodeUrlParameters(modParameters));
 		enforce(!html.contains("Please login again to verify the legitimacy of this request"), "Authorization loop");
 	}
+}
+
+void deletePost(string id, string reason)
+{
+	modAction("inlinemod.php", [
+		"securitytoken"[] : securityToken,
+		"postids"         : id,
+		"do"              : "dodeleteposts",
+		"deletetype"      : "1",
+		"deletereason"    : reason
+	]);
 }
 
 string fixHtml(string html)

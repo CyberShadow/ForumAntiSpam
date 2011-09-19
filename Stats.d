@@ -8,8 +8,6 @@ import Forum;
 
 void main()
 {
-	login();
-	
 	bool[string] engineResults;
 	string postID;
 	int[string] engineTotal, engineFalsePositive, engineFalseNegative;

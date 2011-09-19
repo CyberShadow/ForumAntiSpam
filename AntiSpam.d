@@ -180,8 +180,6 @@ void main(string[] args)
 		"q|quiet", &quiet);
 	auto log = quiet ? new FileLogger("AntiSpam") : new FileAndConsoleLogger("AntiSpam");
 
-	login();
-
 	string[] enabledEngines = splitLines(readText("data/engines.txt"));
 	bool[string] knownPosts;
 
