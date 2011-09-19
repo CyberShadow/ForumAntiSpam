@@ -16,7 +16,7 @@ import ae.utils.text;
 import Common;
 static import DB;
 
-string baseUrl, username, password;
+string baseUrl, username, password, publicBaseUrl;
 
 static this()
 {
@@ -24,6 +24,7 @@ static this()
 	baseUrl = lines[0];
 	username = lines[1];
 	password = lines[2];
+	publicBaseUrl = lines.length>3 ? lines[3] : baseUrl;
 }
 
 void login()

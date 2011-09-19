@@ -61,7 +61,7 @@ class AntiSpamFrontend
 					string baseUrl;
 				}
 				JSONInfo info;
-				info.baseUrl = baseUrl;
+				info.baseUrl = publicBaseUrl;
 				return resp.serveJson(info);
 			}
 			else
