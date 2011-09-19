@@ -24,7 +24,8 @@ CheckResult check(Message message)
 			result["classification"].text,
 			result["profanity-match"].text,
 			result["signature"].text
-		)
+		),
+		result["signature"].text
 	);
 }
 

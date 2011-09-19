@@ -105,7 +105,8 @@ CheckResult check(Message message)
 			result.spam==CheckContentResult.Ham ? "Ham" : result.spam==CheckContentResult.Spam ? "Spam" : "Unsure",
 			result.quality,
 			result.session_id
-		)
+		),
+		result.session_id
 	);
 }
 
