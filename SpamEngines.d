@@ -1,7 +1,7 @@
 module SpamEngines;
 
-// import Akismet;
-import StopForumSpam;
-import ProjectHoneyPot;
-import Defensio;
-import Mollom;
+// import engines.Akismet;
+import engines.StopForumSpam;
+import engines.ProjectHoneyPot;
+import engines.Defensio;
+import engines.Mollom;

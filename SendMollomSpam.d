@@ -2,7 +2,7 @@ module SendMollomSpam;
 
 import std.stdio;
 
-import Mollom;
+import engines.Mollom;
 
 void main(string[] args)
 {

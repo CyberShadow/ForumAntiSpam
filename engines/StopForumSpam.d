@@ -1,4 +1,4 @@
-module StopForumSpam;
+module engines.StopForumSpam;
 
 import std.stream;
 import std.datetime;

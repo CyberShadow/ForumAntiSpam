@@ -1,4 +1,4 @@
-module Akismet;
+module engines.Akismet;
 
 import std.file;
 import std.string;

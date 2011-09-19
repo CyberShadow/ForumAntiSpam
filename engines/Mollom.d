@@ -1,4 +1,4 @@
-﻿module Mollom;
+﻿module engines.Mollom;
 
 import std.file;
 import std.string;

@@ -1,4 +1,4 @@
-module ProjectHoneyPot;
+module engines.ProjectHoneyPot;
 
 import std.socket;
 import std.file;
