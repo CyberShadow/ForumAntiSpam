@@ -11,13 +11,13 @@ private:
 const DAYS_THRESHOLD  =  3; // consider an IP match as a positive if it was last seen at most this many days ago
 const SCORE_THRESHOLD = 10; // consider an IP match as a positive if its ProjectHoneyPot score is at least this value
 
-CheckResult check(Message message)
+CheckResult check(Post post)
 {
-	auto result = phpCheck(message.IP);
+	auto result = phpCheck(post.ip);
 	with (result)
 		return CheckResult(present && daysLastSeen <= DAYS_THRESHOLD && threatScore >= SCORE_THRESHOLD,
 			present ? format(
-				message.IP ~ " last seen: %d days ago, threat score: %d/255, type: %s",
+				post.ip ~ " last seen: %d days ago, threat score: %d/255, type: %s",
 				daysLastSeen,
 				threatScore,
 				(
@@ -26,7 +26,7 @@ CheckResult check(Message message)
 					((type & 0b0010) ? ["Harvester"      ] : []) ~
 					((type & 0b0100) ? ["Comment Spammer"] : [])
 				).join(", ")
-			) : message.IP ~ " not present in database / lookup error"
+			) : post.ip ~ " not present in database / lookup error"
 		);
 }
 

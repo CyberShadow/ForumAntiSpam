@@ -11,9 +11,9 @@ import DB;
 void main()
 {
 	int postID;
-	string author, IP, title;
-	string[] content;
-	bool inContent;
+	string user, ip, title;
+	string[] textLines;
+	bool inText;
 
 	int totalPosts, totalResults;
 
@@ -37,26 +37,26 @@ void main()
 					postID = to!int(line[14..$]);
 				else
 				if (line.startsWith("Author: "))
-					author = line[8..$];
+					user = line[8..$];
 				else
-				if (line.startsWith("IP: "))
-					IP = line[4..$];
+				if (line.startsWith("ip: "))
+					ip = line[4..$];
 				else
 				if (line.startsWith("Title: "))
 					title = line[7..$];
 				else
 				if (line == "Content:")
 				{
-					content = null;
-					inContent = true;
+					textLines = null;
+					inText = true;
 				}
 				else
-				if (line.startsWith("> ") && inContent)
-					content ~= line[2..$];
+				if (line.startsWith("> ") && inText)
+					textLines ~= line[2..$];
 				else
 				if (line.hasAt(20, ':'))
 				{
-					inContent = false;
+					inText = false;
 					auto engine = strip(line[0..20]);
 					line = strip(line[21..$]);
 					p = line.indexOf(" (");
@@ -91,14 +91,14 @@ void main()
 					auto verdictStr = line[9..$];
 					assert(verdictStr == "SPAM, deleting." || verdictStr == "not spam.");
 					bool verdict = verdictStr == "SPAM, deleting.";
-					string text = content.join("\n");
-					newPost.exec(postID, time, author, IP, title, text, true, verdict);
+					string text = textLines.join("\n");
+					newPost.exec(postID, time, user, ip, title, text, true, verdict);
 					totalPosts++;
 				}
 			}
 			else
-			if (inContent)
-				content ~= line;
+			if (inText)
+				textLines ~= line;
 
 	writefln("Committing...");
 

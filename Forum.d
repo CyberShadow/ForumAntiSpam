@@ -80,13 +80,13 @@ string[] getThreadsToModerate()
 	return ids;
 }
 
-Message getPost(string id)
+Post getPost(string id)
 {
-	Message post;
+	Post post;
 	DB.findPost.bindAll(id);
 	if (DB.findPost.step())
 	{
-		DB.findPost.columns(post.tupleof[0..$-1]); // all but "cached"
+		DB.findPost.columns(post.dbPost.tupleof);
 		DB.findPost.reset();
 		post.cached = true;
 		return post;
@@ -96,10 +96,10 @@ Message getPost(string id)
 
 	auto html = fixHtml(download(baseUrl ~ "showpost.php?p=" ~ id));
 	auto doc = new XmlDocument(new MemoryStream(cast(char[])html));
-	post.author = doc["html"]["body"]["form"]["table", 1]["tr", 1]["td"]["div"]["a"].text;
+	post.user = doc["html"]["body"]["form"]["table", 1]["tr", 1]["td"]["div"]["a"].text;
 	auto actionButtons = doc["html"]["body"]["form"]["table", 1]["tr", 2]["td"].findChildren("a");
-	post.IP = actionButtons[$-1]["img"].attributes["title"];
-	enforce(post.IP.split(".").length == 4);
+	post.ip = actionButtons[$-1]["img"].attributes["title"];
+	enforce(post.ip.split(".").length == 4);
 
 	html = fixHtml(download(baseUrl ~ "editpost.php?do=editpost&p=" ~ id));
 	enforce(!isInvalidPost(html), "Can't get post vbCode");
@@ -110,7 +110,7 @@ Message getPost(string id)
 	post.time = Clock.currTime().stdTime;
 	post.moderated = false;
 	post.cached = false;
-	DB.newPost.exec(post.tupleof[0..$-1]); // all but "cached"
+	DB.newPost.exec(post.dbPost.tupleof);
 
 	return post;
 }

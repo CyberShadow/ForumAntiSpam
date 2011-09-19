@@ -11,7 +11,7 @@ import SpamCommon;
 
 private:
 
-string request(Message message, string request)
+string request(Post post, string request)
 {
 	auto config = splitLines(cast(string)read("data/akismet.txt"));
 	string key = config[0];
@@ -19,31 +19,31 @@ string request(Message message, string request)
 
 	string[string] params = [
 		"blog"[] : blog,
-		"comment_author" : message.author,
-		"user_ip" : message.IP,
-		"comment_content" : message.text
+		"comment_author" : post.user,
+		"user_ip" : post.ip,
+		"comment_content" : post.text
 	];
 
-	return post("http://" ~ key ~ ".rest.akismet.com/1.1/" ~ request, encodeUrlParameters(params));
+	return .post("http://" ~ key ~ ".rest.akismet.com/1.1/" ~ request, encodeUrlParameters(params));
 }
 
-CheckResult check(Message message)
+CheckResult check(Post post)
 {
-	auto result = request(message, "comment-check");
+	auto result = request(post, "comment-check");
 
 	enforce(result == "true" || result == "false", result);
 	return CheckResult(result == "true");
 }
 
-void sendSpam(Message message, CheckResult checkResult)
+void sendSpam(Post post, CheckResult checkResult)
 {
-	auto result = request(message, "submit-spam");
+	auto result = request(post, "submit-spam");
 	enforce(result == "Thanks for making the web a better place.", result);
 }
 
-void sendHam(Message message, CheckResult checkResult)
+void sendHam(Post post, CheckResult checkResult)
 {
-	auto result = request(message, "submit-ham");
+	auto result = request(post, "submit-ham");
 	enforce(result == "Thanks for making the web a better place.", result);
 }
 

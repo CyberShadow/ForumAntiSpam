@@ -61,9 +61,9 @@ $(function() {
 							content.find('td:first-child').css('width', '100px');
 							content.find('.post-id').html('<a href="'+baseUrl+'showpost.php?p='+post.id+'">'+post.id+'</a>');
 							content.find('.post-time').text(post.time);
-							var authorHtml = escapeHtml(post.author);
-							content.find('.post-user').html('<a href="'+baseUrl+'memberlist.php?ausername='+authorHtml+'">'+authorHtml+'</a>');
-							content.find('.post-ip').text(post.IP);
+							var userHtml = escapeHtml(post.user);
+							content.find('.post-user').html('<a href="'+baseUrl+'memberlist.php?ausername='+userHtml+'">'+userHtml+'</a>');
+							content.find('.post-ip').text(post.ip);
 							content.find('.post-title').text(post.title);
 							content.find('.post-text').text(post.text);
 							if (post.moderated)
@@ -122,7 +122,7 @@ $(function() {
 							var resultsLoaded = false;
 							postDiv.append(content);
 							postDiv.find('h1')
-								.text(post.time.substr(12, 8)+' — '+post.author+' — '+post.title.substr(0, 60))
+								.text(post.time.substr(12, 8)+' — '+post.user+' — '+post.title.substr(0, 60))
 								.prepend(post.moderated ? $('<div title="Verdict" class="'+(post.verdict?'spam':'ham')+'" style="float:right">'+(post.verdict ? 'SPAM' : 'not spam')+'</div>') : '')
 								.css('text-align', 'left')
 								.css('cursor', 'pointer')

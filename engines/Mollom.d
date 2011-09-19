@@ -74,7 +74,7 @@ struct CheckContentResult
 	}
 }
 
-CheckContentResult postMessage(Message message)
+CheckContentResult postMessage(Post post)
 {
 	struct CheckContentParams
 	{
@@ -82,7 +82,7 @@ CheckContentResult postMessage(Message message)
 		mixin CommonRequestParameters;
 	}
 
-	return request!(CheckContentResult)("checkContent", CheckContentParams(message.title, message.text, message.author, message.IP));
+	return request!(CheckContentResult)("checkContent", CheckContentParams(post.title, post.text, post.user, post.ip));
 }
 
 public bool sendFeedback(string sessionID, string feedback)
@@ -96,9 +96,9 @@ public bool sendFeedback(string sessionID, string feedback)
 	return request!(bool)("sendFeedback", SendFeedbackParams(sessionID, feedback));
 }
 
-CheckResult check(Message message)
+CheckResult check(Post post)
 {
-	auto result = postMessage(message);
+	auto result = postMessage(post);
 	enforce(result.spam >= 1 && result.spam <= 3, "Invalid spam value");
 	return CheckResult(result.spam == CheckContentResult.Spam,
 		format("spam: %s, quality: %s, session_id: %s",
@@ -110,7 +110,7 @@ CheckResult check(Message message)
 	);
 }
 
-void sendSpam(Message message, CheckResult checkResult)
+void sendSpam(Post post, CheckResult checkResult)
 {
 	sendFeedback(checkResult.session, "spam");
 }

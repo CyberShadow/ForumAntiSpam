@@ -13,9 +13,9 @@ import SpamCommon;
 
 private:
 
-CheckResult check(Message message)
+CheckResult check(Post post)
 {
-	auto result = postDocument(message);
+	auto result = postDocument(post);
 	return CheckResult(
 		result["allow"].text == "false" && result["spaminess"].text == "0.99",
 		format("allow: %s, spaminess: %s, classification: %s, profanity-match: %s, signature: %s",
@@ -29,7 +29,7 @@ CheckResult check(Message message)
 	);
 }
 
-XmlNode postDocument(Message message)
+XmlNode postDocument(Post post)
 {
 	auto config = splitLines(cast(string)read("data/defensio.txt"));
 	string key = config[0];
@@ -37,16 +37,16 @@ XmlNode postDocument(Message message)
 
 	string[string] params = [
 		"client"[] : client,
-		"content" : message.text,
+		"content" : post.text,
 		"platform" : "forum_bot",
 		"type" : "forum",
-		"author-ip" : message.IP,
+		"author-ip" : post.ip,
 		"author-logged-in" : "true",
-		"title" : message.title
+		"title" : post.title
 	];
 	string url = "http://api.defensio.com/2.0/users/" ~ key ~ "/documents.xml";
 
-	auto xml = new XmlDocument(new MemoryStream(cast(char[])post(url, encodeUrlParameters(params))));
+	auto xml = new XmlDocument(new MemoryStream(cast(char[]).post(url, encodeUrlParameters(params))));
 	auto result = xml["defensio-result"];
 	auto messageNode = result.findChild("message");
 	enforce(result["status"].text == "success", "Defensio API failure" ~ (messageNode ? ": " ~ messageNode.text : ""));
@@ -71,7 +71,7 @@ public void postFeedback(string signature, bool isSpam)
 	enforce(result["status"].text == "success", "Defensio API failure" ~ (messageNode ? ": " ~ messageNode.text : ""));
 }
 
-void sendSpam(Message message, CheckResult checkResult) { postFeedback(checkResult.session, true ); }
-void sendHam (Message message, CheckResult checkResult) { postFeedback(checkResult.session, false); }
+void sendSpam(Post post, CheckResult checkResult) { postFeedback(checkResult.session, true ); }
+void sendHam (Post post, CheckResult checkResult) { postFeedback(checkResult.session, false); }
 
 static this() { spamEngines ~= SpamEngine("Defensio", &check, &sendSpam, &sendHam); }

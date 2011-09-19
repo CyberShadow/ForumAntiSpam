@@ -78,7 +78,7 @@ class AntiSpamFrontend
 				struct JSONPost
 				{
 					int id;
-					string time, author, IP, title, text;
+					string time, user, ip, title, text;
 					bool moderated, verdict;
 				}
 
@@ -87,10 +87,10 @@ class AntiSpamFrontend
 				JSONPost[] posts;
 				while (DB.getPosts.step())
 				{
-					Message dbPost;
-					DB.getPosts.columns(dbPost.tupleof[0..$-1]); // omit "cached"
-					with (dbPost)
-						posts ~= JSONPost(id, SysTime(time).toString(), forceValidUTF8(author), IP, forceValidUTF8(title), forceValidUTF8(text), moderated, verdict);
+					Post post;
+					DB.getPosts.columns(post.dbPost.tupleof);
+					with (post.dbPost)
+						posts ~= JSONPost(id, SysTime(time).toString(), forceValidUTF8(user), ip, forceValidUTF8(title), forceValidUTF8(text), moderated, verdict);
 				}
 				return resp.serveJson(posts);
 			}
@@ -181,17 +181,17 @@ void main(string[] args)
 	login();
 
 	string[] enabledEngines = splitLines(readText("data/engines.txt"));
-	bool[string] knownIDs;
+	bool[string] knownPosts;
 
 	setInterval({
-		string[] IDs = getPostsToModerate() ~ getThreadsToModerate();
-		foreach (ID; IDs)
-			if (!(ID in knownIDs))
+		string[] posts = getPostsToModerate() ~ getThreadsToModerate();
+		foreach (id; posts)
+			if (!(id in knownPosts))
 			{
-				log("Checking post " ~ ID);
-				auto post = getPost(ID);
-				log("Author: " ~ post.author);
-				log("IP: " ~ post.IP);
+				log("Checking post " ~ id);
+				auto post = getPost(id);
+				log("Author: " ~ post.user);
+				log("IP: " ~ post.ip);
 				log("Title: " ~ post.title);
 				log("Content:");
 				foreach (line; splitLines(forceValidUTF8(post.text)))
@@ -220,7 +220,7 @@ void main(string[] args)
 						reason = "Definitely spam";
 					else
 						reason = "Spam (" ~ positiveEngines.join(", ") ~ ")";
-					deletePost(ID, reason);
+					deletePost(id, reason);
 					DB.moderatePost.exec(true, post.id, post.time);
 				}
 				else
@@ -233,7 +233,7 @@ void main(string[] args)
 					log("Verdict: no engines configured.");
 
 				log("###########################################################################################");
-				knownIDs[ID] = true;
+				knownPosts[id] = true;
 			}
 	}, TickDuration.from!"seconds"(30));//+/
 

@@ -1,12 +1,18 @@
 module Common;
 
-struct Message
+struct DBPost
 {
 	int id;
 	long time;
-	string author, IP, title, text;
+	string user, ip, title, text;
 
 	bool moderated, verdict;
+}
+
+struct Post
+{
+	DBPost dbPost;
+	alias dbPost this;
 
 	bool cached;
 }

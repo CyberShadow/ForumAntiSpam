@@ -22,8 +22,8 @@ struct CheckResult
 struct SpamEngine
 {
 	string name;
-	CheckResult function(Message) checkFunc;
-	void function(Message, CheckResult) spamFunc, hamFunc;
+	CheckResult function(Post) checkFunc;
+	void function(Post, CheckResult) spamFunc, hamFunc;
 
 	/// Find a CheckResult from database log.
 	bool findResult(int id, ref CheckResult result)
@@ -40,7 +40,7 @@ struct SpamEngine
 		return false;
 	}
 
-	CheckResult check(Message m)
+	CheckResult check(Post m)
 	{
 		CheckResult result;
 		if (findResult(m.id, result))
@@ -55,13 +55,13 @@ struct SpamEngine
 		return result;
 	}
 
-	void sendFeedback(Message m, bool isSpam)
+	void sendFeedback(Post m, bool isSpam)
 	{
 		enforce((Clock.currTime() - SysTime(m.time)).weeks==0, "Sending feedback for posts over a week old is forbidden");
 		auto func = isSpam ? spamFunc : hamFunc;
 		enforce(func, "Don't know how to send feedback of this type");
 		CheckResult result;
-		enforce(findResult(m.id, result), "Can't find result for this message");
+		enforce(findResult(m.id, result), "Can't find result for this post");
 		enforce(result.feedbackTime == 0, "Feedback for this post has already been sent");
 		func(m, result);
 		// UPDATE `results` SET `fbtime` = ?, `fbverdict` = ? WHERE `id` = ? AND `engine` = ? AND `time` = ?
