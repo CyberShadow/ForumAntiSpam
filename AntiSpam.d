@@ -1,6 +1,7 @@
 module AntiSpam;
 
 import std.stdio;
+import std.file;
 import std.string;
 import std.getopt;
 import std.datetime : SysTime, Date, dur;
@@ -8,6 +9,7 @@ import std.exception;
 
 import ae.utils.log;
 import ae.utils.text;
+import ae.utils.array;
 import ae.sys.timing;
 import ae.net.asockets;
 import ae.net.http.server;
@@ -15,7 +17,7 @@ import ae.net.http.responseex;
 
 import Forum;
 import SpamCommon;
-import SpamEngines;
+import engines.All;
 static import DB;
 
 bool quiet;
@@ -185,9 +187,10 @@ void main(string[] args)
 
 	login();
 
+	string[] enabledEngines = splitLines(readText("data/engines.txt"));
 	bool[string] knownIDs;
 
-	/+setInterval({
+	setInterval({
 		string[] IDs = getPostsToModerate() ~ getThreadsToModerate();
 		foreach (ID; IDs)
 			if (!(ID in knownIDs))
@@ -202,22 +205,25 @@ void main(string[] args)
 					log("> " ~ line);
 
 				string[] positiveEngines;
-				foreach (engine; engines)
-				{
-					auto result = engine.check(post);
-					with (result)
+				int totalEngines = 0;
+				foreach (engine; spamEngines)
+					if (inArray(enabledEngines, engine.name))
 					{
-						log(format("%-20s: %s%s", engine.name, isSpam ? "SPAM" : "not spam", details ? " (" ~ details ~ ")" : ""));
-						if (isSpam)
-							positiveEngines ~= engine.name;
+						totalEngines++;
+						auto result = engine.check(post);
+						with (result)
+						{
+							log(format("%-20s: %s%s", engine.name, isSpam ? "SPAM" : "not spam", details ? " (" ~ details ~ ")" : ""));
+							if (isSpam)
+								positiveEngines ~= engine.name;
+						}
 					}
-				}
 
 				if (positiveEngines.length >= TOTAL_POSITIVE_THRESHOLD)
 				{
 					log("Verdict: SPAM, deleting.");
 					string reason;
-					if (positiveEngines.length == engines.length)
+					if (positiveEngines.length == totalEngines)
 						reason = "Definitely spam";
 					else
 						reason = "Spam (" ~ positiveEngines.join(", ") ~ ")";
@@ -229,7 +235,7 @@ void main(string[] args)
 				log("###########################################################################################");
 				knownIDs[ID] = true;
 			}
-	}, TickDuration.from!"seconds"(30));+/
+	}, TickDuration.from!"seconds"(30));//+/
 
 	new AntiSpamFrontend();
 	socketManager.loop();

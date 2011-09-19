@@ -115,4 +115,4 @@ void sendSpam(Message message, CheckResult checkResult)
 	sendFeedback(checkResult.session, "spam");
 }
 
-static this() { engines ~= SpamEngine("Mollom", &check, &sendSpam); }
+static this() { spamEngines ~= SpamEngine("Mollom", &check, &sendSpam); }

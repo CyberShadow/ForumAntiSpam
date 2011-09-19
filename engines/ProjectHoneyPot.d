@@ -53,7 +53,7 @@ PHPResult phpCheck(string ip)
 	return PHPResult(true, resultIP[1], resultIP[2], resultIP[3]);
 }
 
-static this() { engines ~= SpamEngine("ProjectHoneyPot", &check); }
+static this() { spamEngines ~= SpamEngine("ProjectHoneyPot", &check); }
 
 /+
 import std.stdio;

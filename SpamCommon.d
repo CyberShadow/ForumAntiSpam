@@ -73,11 +73,11 @@ struct SpamEngine
 	}
 }
 
-SpamEngine[] engines;
+SpamEngine[] spamEngines;
 
 SpamEngine* findEngine(string name)
 {
-	foreach (ref engine; engines)
+	foreach (ref engine; spamEngines)
 		if (engine.name == name)
 			return &engine;
 	return null;

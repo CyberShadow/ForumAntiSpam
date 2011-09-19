@@ -47,4 +47,4 @@ void sendHam(Message message, CheckResult checkResult)
 	enforce(result == "Thanks for making the web a better place.", result);
 }
 
-static this() { engines ~= SpamEngine("Akismet", &check, &sendSpam, &sendHam); }
+static this() { spamEngines ~= SpamEngine("Akismet", &check, &sendSpam, &sendHam); }

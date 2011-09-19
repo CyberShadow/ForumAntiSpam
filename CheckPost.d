@@ -4,14 +4,14 @@ import std.stdio;
 
 import Forum;
 import SpamCommon;
-import SpamEngines;
+import engines.All;
 
 void main(string[] args)
 {
 	login();
 	auto id = args[1];
 	auto post = getPost(id);
-	foreach (engine; engines)
+	foreach (engine; spamEngines)
 	{
 		auto result = engine.check(post);
 		with (result)

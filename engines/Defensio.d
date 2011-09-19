@@ -74,4 +74,4 @@ public void postFeedback(string signature, bool isSpam)
 void sendSpam(Message message, CheckResult checkResult) { postFeedback(checkResult.session, true ); }
 void sendHam (Message message, CheckResult checkResult) { postFeedback(checkResult.session, false); }
 
-static this() { engines ~= SpamEngine("Defensio", &check, &sendSpam, &sendHam); }
+static this() { spamEngines ~= SpamEngine("Defensio", &check, &sendSpam, &sendHam); }
