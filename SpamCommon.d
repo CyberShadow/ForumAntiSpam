@@ -57,6 +57,7 @@ struct SpamEngine
 
 	void sendFeedback(Message m, bool isSpam)
 	{
+		enforce((Clock.currTime() - SysTime(m.time)).weeks==0, "Sending feedback for posts over a week old is forbidden");
 		auto func = isSpam ? spamFunc : hamFunc;
 		enforce(func, "Don't know how to send feedback of this type");
 		CheckResult result;
