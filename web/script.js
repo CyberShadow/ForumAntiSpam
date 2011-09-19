@@ -66,10 +66,17 @@ $(function() {
 							content.find('.post-ip').text(post.IP);
 							content.find('.post-title').text(post.title);
 							content.find('.post-text').text(post.text);
-							content.find('.post-verdict').text(post.verdict ? 'SPAM, deleted' : 'not spam').addClass(post.verdict ? 'spam' : 'ham');
+							if (post.moderated)
+								content.find('.post-verdict').text(post.verdict ? 'SPAM, deleted' : 'not spam').addClass(post.verdict ? 'spam' : 'ham');
+							else
+								content.find('.post-verdict').text('Not checked');
 
 							var getResults = function() {
 								getData('results', {'id':post.id}, function(results) {
+									if (results.length==0) {
+										content.find('.post-results').text('Not checked');
+										return;
+									}
 									var table = $('<div><table><tr>'+
 										'<th style="width: 150px">Engine</th>'+
 										'<th style="width: 100px">Time</th>'+
@@ -86,7 +93,7 @@ $(function() {
 												'<td class="'+(result.result ? 'spam' : 'ham')+'">'+(result.result ? 'SPAM' : 'not spam')+'</td>'+
 												'<td>'+escapeHtml(result.details)+'</td>'+
 												(result.feedbackSent ?
-													'<td colspan="2">Feedback sent on ' + result.feedbackTime + ' as <span class="'+(post.verdict ? 'spam' : 'ham')+'">'+(result.result ? 'SPAM' : 'not spam')+'</td>'
+													'<td colspan="2">Feedback sent on ' + result.feedbackTime + ' as <span class="'+(result.result ? 'spam' : 'ham')+'">'+(result.result ? 'SPAM' : 'not spam')+'</td>'
 												:
 													'<td class="feedback">'+(result.canSendSpam ? '<button class="spam">SPAM</button>' : '')+'</td>'+
 													'<td class="feedback">'+(result.canSendHam  ? '<button class="ham">HAM</button>'   : '')+'</td>'
@@ -116,7 +123,7 @@ $(function() {
 							postDiv.append(content);
 							postDiv.find('h1')
 								.text(post.time.substr(12, 8)+' — '+post.author+' — '+post.title.substr(0, 60))
-								.prepend($('<div title="verdict" class="'+(post.verdict?'spam':'ham')+'" style="float:right">'+(post.verdict ? 'SPAM' : 'not spam')+'</div>'))
+								.prepend(post.moderated ? $('<div title="Verdict" class="'+(post.verdict?'spam':'ham')+'" style="float:right">'+(post.verdict ? 'SPAM' : 'not spam')+'</div>') : '')
 								.css('text-align', 'left')
 								.css('cursor', 'pointer')
 								.mousedown(function() {

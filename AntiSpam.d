@@ -79,7 +79,7 @@ class AntiSpamFrontend
 				{
 					int id;
 					string time, author, IP, title, text;
-					bool verdict;
+					bool moderated, verdict;
 				}
 
 				auto date = Date.fromSimpleString(args["date"]);
@@ -87,17 +87,10 @@ class AntiSpamFrontend
 				JSONPost[] posts;
 				while (DB.getPosts.step())
 				{
-					struct DBPost
-					{
-						int id;
-						long time;
-						string author, IP, title, text;
-						bool verdict;
-					}
-					DBPost dbPost;
-					DB.getPosts.columns(dbPost.tupleof);
+					Message dbPost;
+					DB.getPosts.columns(dbPost.tupleof[0..$-1]); // omit "cached"
 					with (dbPost)
-						posts ~= JSONPost(id, SysTime(time).toString(), forceValidUTF8(author), IP, forceValidUTF8(title), forceValidUTF8(text), verdict);
+						posts ~= JSONPost(id, SysTime(time).toString(), forceValidUTF8(author), IP, forceValidUTF8(title), forceValidUTF8(text), moderated, verdict);
 				}
 				return resp.serveJson(posts);
 			}
@@ -201,7 +194,7 @@ void main(string[] args)
 				log("IP: " ~ post.IP);
 				log("Title: " ~ post.title);
 				log("Content:");
-				foreach (line; splitLines(post.text))
+				foreach (line; splitLines(forceValidUTF8(post.text)))
 					log("> " ~ line);
 
 				string[] positiveEngines;
@@ -228,9 +221,16 @@ void main(string[] args)
 					else
 						reason = "Spam (" ~ positiveEngines.join(", ") ~ ")";
 					deletePost(ID, reason);
+					DB.moderatePost.exec(true, post.id, post.time);
 				}
 				else
+				if (totalEngines>0)
+				{
 					log("Verdict: not spam.");
+					DB.moderatePost.exec(false, post.id, post.time);
+				}
+				else
+					log("Verdict: no engines configured.");
 
 				log("###########################################################################################");
 				knownIDs[ID] = true;

@@ -6,6 +6,7 @@ import std.array;
 import std.stream;
 import std.file;
 import std.exception;
+import std.datetime;
 
 import ae.net.http.common;
 import ae.utils.cmd;
@@ -13,6 +14,7 @@ import ae.utils.xml;
 import ae.utils.text;
 
 import Common;
+static import DB;
 
 string baseUrl, username, password;
 
@@ -80,6 +82,15 @@ string[] getThreadsToModerate()
 Message getPost(string id)
 {
 	Message post;
+	DB.findPost.bindAll(id);
+	if (DB.findPost.step())
+	{
+		DB.findPost.columns(post.tupleof[0..$-1]); // all but "cached"
+		DB.findPost.reset();
+		post.cached = true;
+		return post;
+	}
+
 	post.id = to!int(id);
 
 	auto html = fixHtml(download(baseUrl ~ "showpost.php?p=" ~ id));
@@ -94,6 +105,11 @@ Message getPost(string id)
 	doc = new XmlDocument(new MemoryStream(cast(char[])html));
 	post.title = doc["html"]["body"]["div"]["div"]["div"]["form", 1]["table"]["tr", 1]["td"]["div"]["div"]["table"]["tr", 1]["td"]["input"].attributes["value"];
 	post.text  = doc["html"]["body"]["div"]["div"]["div"]["form", 1]["table"]["tr", 1]["td"]["div"]["div"]["table", 1]["tr"]["td"]["table"]["tr"]["td"]["textarea"].text;
+
+	post.time = Clock.currTime().stdTime;
+	post.moderated = false;
+	post.cached = false;
+	DB.newPost.exec(post.tupleof[0..$-1]); // all but "cached"
 
 	return post;
 }

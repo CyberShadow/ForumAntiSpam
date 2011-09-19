@@ -92,7 +92,7 @@ void main()
 					assert(verdictStr == "SPAM, deleting." || verdictStr == "not spam.");
 					bool verdict = verdictStr == "SPAM, deleting.";
 					string text = content.join("\n");
-					newPost.exec(postID, time, author, IP, title, text, verdict);
+					newPost.exec(postID, time, author, IP, title, text, true, verdict);
 					totalPosts++;
 				}
 			}

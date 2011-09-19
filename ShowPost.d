@@ -9,5 +9,5 @@ void main(string[] args)
 	login();
 	auto id = args[1];
 	auto post = getPost(id);
-	printf("Author: %.*s\nIP: %.*s\nTitle: %.*s\nMessage: %.*s\n", post.tupleof); // Utf-8 hack
+	writefln("Author: %s\nIP: %s\nTitle: %s\nMessage: %s\nCached: %s\n", post.author, post.IP, post.title, post.text, post.cached);
 }
