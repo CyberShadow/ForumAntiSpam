@@ -97,6 +97,7 @@ Post getPost(string id)
 	auto html = fixHtml(download(baseUrl ~ "showpost.php?p=" ~ id));
 	auto doc = new XmlDocument(new MemoryStream(cast(char[])html));
 	post.user = doc["html"]["body"]["form"]["table", 1]["tr", 1]["td"]["div"]["a"].text;
+	post.userid = to!int(doc["html"]["body"]["form"]["table", 1]["tr", 1]["td"]["div"]["a"].attributes["href"].split("?")[1].decodeUrlParameters()["u"]);
 	auto actionButtons = doc["html"]["body"]["form"]["table", 1]["tr", 2]["td"].findChildren("a");
 	post.ip = actionButtons[$-1]["img"].attributes["title"];
 	enforce(post.ip.split(".").length == 4);

@@ -78,7 +78,9 @@ class AntiSpamFrontend
 				struct JSONPost
 				{
 					int id;
-					string time, user, ip, title, text;
+					string time, user;
+					int userid;
+					string ip, title, text;
 					bool moderated, verdict;
 				}
 
@@ -90,7 +92,7 @@ class AntiSpamFrontend
 					Post post;
 					DB.getPosts.columns(post.dbPost.tupleof);
 					with (post.dbPost)
-						posts ~= JSONPost(id, SysTime(time).toString(), forceValidUTF8(user), ip, forceValidUTF8(title), forceValidUTF8(text), moderated, verdict);
+						posts ~= JSONPost(id, SysTime(time).toString(), forceValidUTF8(user), userid, ip, forceValidUTF8(title), forceValidUTF8(text), moderated, verdict);
 				}
 				return resp.serveJson(posts);
 			}

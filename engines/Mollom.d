@@ -78,11 +78,11 @@ CheckContentResult postMessage(Post post)
 {
 	struct CheckContentParams
 	{
-		string post_title, post_body, author_name, author_ip;
+		string post_title, post_body, author_name, author_ip, author_id;
 		mixin CommonRequestParameters;
 	}
 
-	return request!(CheckContentResult)("checkContent", CheckContentParams(post.title, post.text, post.user, post.ip));
+	return request!(CheckContentResult)("checkContent", CheckContentParams(post.title, post.text, post.user, post.ip, to!string(post.userid)));
 }
 
 public bool sendFeedback(string sessionID, string feedback)

@@ -4,7 +4,9 @@ struct DBPost
 {
 	int id;
 	long time;
-	string user, ip, title, text;
+	string user;
+	int userid;
+	string ip, title, text;
 
 	bool moderated, verdict;
 }

@@ -62,7 +62,7 @@ $(function() {
 							content.find('.post-id').html('<a href="'+baseUrl+'showpost.php?p='+post.id+'">'+post.id+'</a>');
 							content.find('.post-time').text(post.time);
 							var userHtml = escapeHtml(post.user);
-							content.find('.post-user').html('<a href="'+baseUrl+'memberlist.php?ausername='+userHtml+'">'+userHtml+'</a>');
+							content.find('.post-user').html('<a href="'+baseUrl+(post.userid ? 'member.php?u='+post.userid : 'memberlist.php?ausername='+userHtml)+'">'+userHtml+'</a>');
 							content.find('.post-ip').text(post.ip);
 							content.find('.post-title').text(post.title);
 							content.find('.post-text').text(post.text);

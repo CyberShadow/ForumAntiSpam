@@ -9,5 +9,5 @@ void main(string[] args)
 	login();
 	auto id = args[1];
 	auto post = getPost(id);
-	writefln("Author: %s\nIP: %s\nTitle: %s\nMessage: %s\nCached: %s\n", post.user, post.ip, post.title, post.text, post.cached);
+	writefln("Author: %s (%d)\nIP: %s\nTitle: %s\nMessage: %s\nCached: %s\n", post.user, post.userid, post.ip, post.title, post.text, post.cached);
 }
