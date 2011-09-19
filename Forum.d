@@ -55,7 +55,7 @@ void saveSecurityToken(XmlNode form)
 			securityToken = input.attributes["value"];
 }
 
-alias getPostsToModerate getSecurityToken;
+alias getThreadsToModerate getSecurityToken;
 
 string[] getPostsToModerate()
 {
@@ -152,17 +152,45 @@ void modAction(string action, string[string] modParameters)
 		html = post(baseUrl ~ action, encodeUrlParameters(modParameters));
 		enforce(!html.contains("Please login again to verify the legitimacy of this request"), "Authorization loop");
 	}
+	std.file.write("modaction.html", html);
 }
 
 void deletePost(string id, string reason)
 {
 	modAction("inlinemod.php", [
-		"securitytoken"[] : securityToken,
-		"postids"         : id,
-		"do"              : "dodeleteposts",
-		"deletetype"      : "1",
-		"deletereason"    : reason
+		"securitytoken"[]   : securityToken,
+		"postids"           : id,
+		"do"                : "dodeleteposts",
+		"deletetype"        : "1",
+		"deletereason"      : reason
 	]);
+}
+
+void infract(Post post, int points, string adminnote)
+{
+	enforce(post.userid, "User ID not known for this post");
+	if (securityToken=="")
+		getSecurityToken();
+	auto modParameters = [
+		"securitytoken"[]   : securityToken,
+		"infractionlevelid" : "0", // custom infraction
+		"points"            : to!string(points),
+		"p"                 : to!string(post.id),
+		"u"                 : to!string(post.userid),
+		"do"                : "update",
+	//	"url"               : baseUrl ~ "showpost.php?p=" ~ to!string(post.userid),
+		"sbutton"           : "Give Infraction",
+		"note"              : adminnote,
+	];
+	foreach (line; splitLines(readText("data/infraction.txt")))
+	{
+		auto keyValue = split(line, "\t");
+		if (keyValue.length==2)
+			modParameters[keyValue[0]] = keyValue[1];
+	}
+	foreach (requiredParameter; ["customreason", "expires", "period", "message"])
+		enforce(requiredParameter in modParameters, "Required parameter " ~ requiredParameter ~ " not specified in infraction.txt");
+	modAction("infraction.php", modParameters);
 }
 
 string fixHtml(string html)
