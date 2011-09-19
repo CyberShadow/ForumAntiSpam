@@ -172,6 +172,7 @@ class AntiSpamFrontend
 }
 
 const TOTAL_POSITIVE_THRESHOLD = 2; // at least this many spam checkers must return a positive to delete this post
+const MAX_INFRACTION_POINTS = 20; // infracted points are proportional to certainty
 
 void main(string[] args)
 {
@@ -222,6 +223,7 @@ void main(string[] args)
 						reason = "Spam (" ~ positiveEngines.join(", ") ~ ")";
 					deletePost(id, reason);
 					DB.moderatePost.exec(true, post.id, post.time);
+					infract(post, MAX_INFRACTION_POINTS*positiveEngines.length/totalEngines, reason);
 				}
 				else
 				if (totalEngines>0)
