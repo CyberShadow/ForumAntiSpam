@@ -1,0 +1,183 @@
+<?php
+
+// 0..240
+function col($h,$s,$v)
+{
+  $s/=240.0;
+  $v/=240.0;
+  if ($s==0) 
+    $col = array($v,$v,$v); 
+  else
+  { 
+    $h=($h%=240)/40; 
+    $i=floor($h); 
+    $f=$h-$i; 
+    $q[0]=$q[1]=$v*(1-$s); 
+    $q[2]=$v*(1-$s*(1-$f)); 
+    $q[3]=$q[4]=$v; 
+    $q[5]=$v*(1-$s*$f); 
+    //return(array($q[($i+4)%5],$q[($i+2)%5],$q[$i%5])); 
+    $col = array($q[($i+4)%6],$q[($i+2)%6],$q[$i%6]); //[1] 
+  } 
+  return sprintf("#%02X%02X%02X", round($col[0]*255), round($col[1]*255), round($col[2]*255));
+}
+
+define('hue', 127);
+
+function bg($level) { return col(hue,  35, 185 + $level*10); }
+function fg($level) { return col(hue, 120, 160 - $level*20); }
+
+$bg = bg(0);
+$fg = fg(0);
+
+$padding = 5;
+?>
+
+/* For editor highlighting: <style> */
+
+/* Centering */
+
+body, html {height: 100%; margin: 0; padding: 0; }
+
+#outer {height: 100%; overflow: visible; position: relative; width: 100%;}
+#outer[id] {display: table; position: static;}
+
+#middle {position: absolute; top: 50%; width: 100%; text-align: center;} /* for explorer only*/
+#middle[id] {display: table-cell; vertical-align: middle; position: static;}
+
+#inner {position: relative; top: -50%; text-align: left;} /* for explorer only */
+#inner {margin-left: auto; margin-right: auto;} /* for all browsers*/
+/* optional: #inner[id] {position: static;} */
+
+/* Style */
+
+body {
+	background: <?=$bg?> center no-repeat fixed;
+	color: <?=$fg?>;
+	font-family:Trebuchet MS,verdana,arial,helvetica,sans-serif;
+}
+
+#inner {
+	margin-top: 50px;
+	margin-bottom: 50px;
+}
+
+h1 {
+	font-size: inherit;
+	margin: 0;
+	padding: 0 10px;
+	color: <?=$bg?>;
+	background-color: <?=$fg?>;
+	text-align: center;
+}
+
+input, textarea, button {
+	border: 1px solid <?=$fg?>;
+	background: none;
+	color: <?=$fg?>;
+	padding-left: 0;
+	padding-right: 0;
+}
+
+input[type="submit"], button {
+	background-color: <?=$fg?>;
+	color: <?=$bg?>;
+	font-weight: bold;
+}
+
+input[type="date"] { /* Opera fix */
+	background-color: <?=$bg?>;
+}
+
+hr {
+	border: none;
+	height: 2px;
+	background-color: <?=$fg?>;
+}
+
+a {
+	color: inherit;
+	text-decoration: none;
+	padding-left: 1px;
+	padding-right: 1px;
+}
+
+a:hover {
+	color: <?=$bg?>;
+	background-color: <?=$fg?>;
+	text-decoration: none;
+}
+
+a.buttonlike, a.buttonlike:hover {
+	display: block;
+	border: 1px solid <?=$fg?>;
+	padding: 1px 2px 2px 2px;
+}
+
+.monospace, #tooltip {
+	font-family: Consolas, Lucida Console, Courier New, courier;
+	font-size: 10pt;
+}
+
+#tooltip {
+	position: absolute;
+	background-color: <?=$bg?>;
+	border: 1px solid;
+	padding: 2px 3px;
+}
+
+.panel {
+	padding: 0;
+	border: 1px solid <?=$fg?>;
+	margin: <?=$padding?>px <?=$padding?>px 0 <?=$padding?>px;
+}
+
+.panel:last-child {
+	margin-bottom: <?=$padding?>px;
+}
+
+.content {
+	margin: <?=$padding?>px;
+}
+
+.panel .panel .panel, .panel .panel .panel table {
+	background-color: <?=bg(2)?>;
+	color: <?=fg(2)?>;
+}
+
+.panel .panel .panel h1 {
+	background-color: <?=fg(2)?>;
+}
+
+.panel .panel {
+	background-color: <?=bg(1)?>;
+	color: <?=fg(1)?>;
+}
+
+.panel .panel h1 {
+	background-color: <?=fg(1)?>;
+}
+
+table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+td {
+	border: 1px solid;
+	word-wrap: break-word;
+}
+
+.spam { color: <?=col( 0,120,140)?>; }
+.ham  { color: <?=col(80,120,140)?>; }
+button.spam,h1 .spam { color: <?=col( 0,120,200)?>; }
+button.ham ,h1 .ham  { color: <?=col(80,120,200)?>; }
+
+td.feedback { width: 40px; text-align: center; }
+button { cursor: pointer; }
+
+/* Layout */
+
+#inner {
+	width: 250px;
+}

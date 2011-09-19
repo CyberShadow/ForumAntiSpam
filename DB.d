@@ -4,7 +4,7 @@ import ae.sys.sqlite3;
 public import ae.sys.sqlite3 : SQLiteException;
 
 SQLite db;
-SQLite.PreparedStatement newPost, newResult, findResult, setFeedback;
+SQLite.PreparedStatement newPost, newResult, findResult, setFeedback, getDates, getPosts, getResults;
 
 static this()
 {
@@ -17,4 +17,7 @@ static this()
 	newResult    = db.prepare("INSERT INTO `results`(`id`, `engine`, `time`, `result`, `details`, `session`) VALUES (?, ?, ?, ?, ?, ?)");
 	findResult   = db.prepare("SELECT `time`, `result`, `details`, `session`, `fbtime`, `fbverdict` FROM `results` WHERE `id` = ? AND `engine` = ? LIMIT 1");
 	setFeedback  = db.prepare("UPDATE `results` SET `fbtime` = ?, `fbverdict` = ? WHERE `id` = ? AND `engine` = ? AND `time` = ?");
+	getDates     = db.prepare("SELECT DISTINCT `time`/(10*1000*1000*3600*24)*(10*1000*1000*3600*24) AS `day` FROM `posts` ORDER BY `day` DESC");
+	getPosts     = db.prepare("SELECT * FROM `posts` WHERE `time` BETWEEN ? AND ? ORDER BY `time` DESC");
+	getResults   = db.prepare("SELECT `engine`, `time`, `result`, `details`, `fbtime`, `fbverdict` FROM `results` WHERE `id` = ?");
 }

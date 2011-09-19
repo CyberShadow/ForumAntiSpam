@@ -32,13 +32,8 @@ struct SpamEngine
 		if (DB.findResult.step())
 		{
 			result.cached = true;
-			// `time`, `result`, `details`, `session`
-			result.time            = DB.findResult.column!long(0);
-			result.isSpam          = DB.findResult.column!bool(1);
-			result.details         = DB.findResult.column!string(2);
-			result.session         = DB.findResult.column!string(3);
-			result.feedbackTime    = DB.findResult.column!long(4);
-			result.feedbackVerdict = DB.findResult.column!bool(5);
+			with (result)
+				DB.findResult.columns(time, isSpam, details, session, feedbackTime, feedbackVerdict);
 			DB.findResult.reset();
 			return true;
 		}
@@ -79,3 +74,11 @@ struct SpamEngine
 }
 
 SpamEngine[] engines;
+
+SpamEngine* findEngine(string name)
+{
+	foreach (ref engine; engines)
+		if (engine.name == name)
+			return &engine;
+	return null;
+}

@@ -1,7 +1,8 @@
-*.html
+/*.html
 *.xml
 *.exe
 Test*.d
 data
 logs
+oldlogs
 *.sqlite3

@@ -19,7 +19,7 @@ void main()
 
 	db.exec("BEGIN TRANSACTION");
 	
-	foreach (de; filter!`endsWith(a.name,".log")`(dirEntries("logs",SpanMode.shallow)))
+	foreach (de; filter!`endsWith(a.name,".log")`(dirEntries("oldlogs",SpanMode.shallow)))
 		foreach (line; split(cast(string)read(de.name), newline.dup))
 			if (line.startsWith("[") && line.hasAt(4, ' ') && line.hasAt(8, ' ') && line.hasAt(11, ' '))
 			{
