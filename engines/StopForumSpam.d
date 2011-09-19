@@ -32,7 +32,7 @@ CheckResult check(Post post)
 
 void sendSpam(Post post, CheckResult checkResult)
 {
-	auto key = cast(string)read("data/stopforumspam.txt");
+	auto key = readText("data/stopforumspam.txt");
 
 	auto result = download("http://www.stopforumspam.com/add.php?" ~ encodeUrlParameters([
 		"username"[] : post.user,

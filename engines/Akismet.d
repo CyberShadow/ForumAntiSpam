@@ -13,7 +13,7 @@ private:
 
 string request(Post post, string request)
 {
-	auto config = splitLines(cast(string)read("data/akismet.txt"));
+	auto config = splitLines(readText("data/akismet.txt"));
 	string key = config[0];
 	string blog = config[1];
 

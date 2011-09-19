@@ -31,7 +31,7 @@ CheckResult check(Post post)
 
 XmlNode postDocument(Post post)
 {
-	auto config = splitLines(cast(string)read("data/defensio.txt"));
+	auto config = splitLines(readText("data/defensio.txt"));
 	string key = config[0];
 	string client = config[1];
 
@@ -56,7 +56,7 @@ XmlNode postDocument(Post post)
 
 public void postFeedback(string signature, bool isSpam)
 {
-	auto config = splitLines(cast(string)read("data/defensio.txt"));
+	auto config = splitLines(readText("data/defensio.txt"));
 	string key = config[0];
 
 	string[string] params = [

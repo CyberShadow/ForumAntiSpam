@@ -38,7 +38,7 @@ struct PHPResult
 
 PHPResult phpCheck(string ip)
 {
-	auto key = cast(string)read("data/projecthoneypot.txt");
+	auto key = readText("data/projecthoneypot.txt");
 
 	string[] sections = split(ip, ".");
 	assert(sections.length == 4);

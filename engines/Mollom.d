@@ -41,7 +41,7 @@ R request(R, T)(string methodName, T params)
 		server = serverList[uniform(0, $)];
 	}
 
-	auto config = splitLines(cast(string)read("data/mollom.txt"));
+	auto config = splitLines(readText("data/mollom.txt"));
 	string publicKey = config[0];
 	string privateKey = config[1];
 	string time = formatTime(`Y-m-d\TH:i:s.EO`, Clock.currTime(UTC()));

@@ -20,7 +20,7 @@ string baseUrl, username, password, publicBaseUrl;
 
 static this()
 {
-	auto lines = splitLines(cast(string)read("data/forum.txt"));
+	auto lines = splitLines(readText("data/forum.txt"));
 	baseUrl = lines[0];
 	username = lines[1];
 	password = lines[2];
