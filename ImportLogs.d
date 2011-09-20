@@ -25,7 +25,7 @@ void main()
 			{
 				auto oline = line; 	scope(failure) writeln("Error parsing line: ", oline);
 
-				int p = line.indexOf("] ");
+				auto p = line.indexOf("] ");
 				auto timeStr = line[1..p];
 				long time;
 				if (timeStr.length == 33)

@@ -46,7 +46,7 @@ class AntiSpamFrontend
 			//log(request.resource);
 			string[string] args;
 			{
-				int pos;
+				sizediff_t pos;
 				if ((pos=resource.indexOf('?'))>=0)
 				{
 					args = decodeUrlParameters(resource[pos+1..$]);
@@ -223,7 +223,7 @@ void main(string[] args)
 						reason = "Spam (" ~ positiveEngines.join(", ") ~ ")";
 					deletePost(id, reason);
 					DB.moderatePost.exec(true, post.id, post.time);
-					infract(post, MAX_INFRACTION_POINTS*positiveEngines.length/totalEngines, reason);
+					infract(post, MAX_INFRACTION_POINTS*cast(int)positiveEngines.length/totalEngines, reason);
 				}
 				else
 				if (totalEngines>0)
