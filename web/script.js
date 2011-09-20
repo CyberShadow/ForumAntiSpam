@@ -93,7 +93,7 @@ $(function() {
 												'<td class="'+(result.result ? 'spam' : 'ham')+'">'+(result.result ? 'SPAM' : 'not spam')+'</td>'+
 												'<td>'+escapeHtml(result.details)+'</td>'+
 												(result.feedbackSent ?
-													'<td colspan="2">Feedback sent on ' + result.feedbackTime + ' as <span class="'+(result.result ? 'spam' : 'ham')+'">'+(result.result ? 'SPAM' : 'not spam')+'</td>'
+													'<td colspan="2">Feedback sent on ' + result.feedbackTime + ' as <span class="'+(result.feedbackVerdict ? 'spam' : 'ham')+'">'+(result.feedbackVerdict ? 'SPAM' : 'not spam')+'</td>'
 												:
 													'<td class="feedback">'+(result.canSendSpam ? '<button class="spam">SPAM</button>' : '')+'</td>'+
 													'<td class="feedback">'+(result.canSendHam  ? '<button class="ham">HAM</button>'   : '')+'</td>'

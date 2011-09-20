@@ -237,7 +237,7 @@ void main(string[] args)
 				log("###########################################################################################");
 				knownPosts[id] = true;
 			}
-	}, TickDuration.from!"seconds"(30));//+/
+	}, TickDuration.from!"seconds"(30));// +/
 
 	new AntiSpamFrontend();
 	socketManager.loop();
