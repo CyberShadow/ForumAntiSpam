@@ -71,7 +71,7 @@ $(function() {
 							else
 								content.find('.post-verdict').text('Not checked');
 
-							var getResults = function() {
+							var getResults = function(animate) {
 								getData('results', {'id':post.id}, function(results) {
 									if (results.length==0) {
 										content.find('.post-results').text('Not checked');
@@ -105,16 +105,16 @@ $(function() {
 												row.find('.feedback').remove();
 												getData('feedback', {'name':result.name, 'id':post.id, 'spam':isSpam}, function() {
 													progress.text('Refreshing...');
-													getResults();
+													getResults(false);
 												})
 											}
 											row.find('button.spam').click(function() { sendFeedback(true ); });
 											row.find('button.ham' ).click(function() { sendFeedback(false); });
 											table.find('table').append(row);
 										})();
-									table.hide();
+									if (animate) table.hide();
 									content.find('.post-results').empty().append(table).css('padding', '4px');
-									table.slideDown();
+									if (animate) table.slideDown();
 								});
 							}
 
@@ -130,7 +130,7 @@ $(function() {
 									content.slideToggle('fast', function() {
 										if (!resultsLoaded) {
 											resultsLoaded = true;
-											getResults();
+											getResults(true);
 										}
 									});
 								});
