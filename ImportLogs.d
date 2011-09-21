@@ -18,7 +18,7 @@ void main()
 	int totalPosts, totalResults;
 
 	db.exec("BEGIN TRANSACTION");
-	
+
 	foreach (de; filter!`endsWith(a.name,".log")`(dirEntries("oldlogs",SpanMode.shallow)))
 		foreach (line; split(cast(string)read(de.name), newline.dup))
 			if (line.startsWith("[") && line.hasAt(4, ' ') && line.hasAt(8, ' ') && line.hasAt(11, ' '))
@@ -39,7 +39,7 @@ void main()
 				if (line.startsWith("Author: "))
 					user = line[8..$];
 				else
-				if (line.startsWith("ip: "))
+				if (line.startsWith("IP: "))
 					ip = line[4..$];
 				else
 				if (line.startsWith("Title: "))
