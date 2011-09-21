@@ -74,7 +74,7 @@ h1 {
 input, textarea, button {
 	border: 1px solid <?=$fg?>;
 	background: none;
-	color: <?=$fg?>;
+	color: <?=fg(1)?>;
 	padding-left: 0;
 	padding-right: 0;
 }

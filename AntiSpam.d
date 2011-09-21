@@ -6,6 +6,8 @@ import std.string;
 import std.getopt;
 import std.datetime : SysTime, Date, dur;
 import std.exception;
+import std.array : array;
+import std.algorithm : map;
 
 import ae.utils.log;
 import ae.utils.text;
@@ -152,6 +154,29 @@ class AntiSpamFrontend
 				auto post = getPost(id);
 				engine.sendFeedback(post, isSpam);
 				return resp.serveJson("OK");
+			}
+			else
+			if (resource == "/data/sql")
+			{
+				struct SQLResult
+				{
+					string[] columns;
+					string[][] rows;
+					bool tooMany;
+				}
+				SQLResult result;
+				foreach (cells, columns; DB.db.query(args["sql"]))
+				{
+					if (!result.columns)
+						result.columns = array(map!`a.idup`(columns));
+					result.rows ~= array(map!`a.idup`(cells));
+					if (result.rows.length > 1000)
+					{
+						result.tooMany = true;
+						break;
+					}
+				}
+				return resp.serveJson(result);
 			}
 			else
 				return resp.serveFile(resource[1..$], "web/");

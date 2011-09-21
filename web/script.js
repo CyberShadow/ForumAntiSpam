@@ -26,12 +26,56 @@ $(function() {
 	getData('dates', null, function(dates) {
 		$('#main-title').text('ForumAntiSpam');
 		$('#inner').animate({width: 900});
-		var html = '';
+		var html = '<div class="panel sqlpanel"><h1>Query database</h1>'+$('#sql').html()+'</div>';
 		for (var i in dates)
 			html += '<div class="panel datepanel"><h1>' + dates[i] + '</h1></div>';
 		var div = $('<div>').hide().html(html);
 		$('#inner').append(div);
 		div.slideDown();
+
+		$('.sqlpanel h1').css('cursor', 'pointer').mousedown(function() {
+			$(".sqlpanel .content").slideToggle();
+		});
+		$('.sqlpanel form').submit(function() {
+			$('.sqlpanel input[type="submit"]').val('Loading...').attr('disabled', 'disabled');
+			$('.sqlpanel table.results').parent().slideUp(200);
+			getData('sql', $(this).serialize(), function(result) {
+				$('.sqlpanel input[type="submit"]').removeAttr('value').removeAttr('disabled');
+				function makeRow(el, cells)
+				{
+					var row = $('<tr>');
+					for (var i in cells)
+						row.append($('<'+el+'>').text(cells[i]));
+					return row;
+				}
+				var table = $('.sqlpanel table.results');
+				table.empty().append(makeRow('th', result.columns));
+				for (var i in result.rows)
+					table.append(makeRow('td', result.rows[i]));
+				if (result.tooMany)
+					$('.sqlpanel .notice').text('Too many results, only '+result.rows.length+' returned');
+				else
+					$('.sqlpanel .notice').text('');
+				table.parent().slideDown(200);
+			}, function(error) {
+				alert(error);
+				$('.sqlpanel input[type="submit"]').removeAttr('value').removeAttr('disabled');
+			});
+			return false;
+		});
+		$('.sqlpanel .commonqueries button').click(function() {
+			var query = $(this).attr('title');
+			var patt = /\?([^\?]*)\?/;
+			var sr;
+			while (sr=patt.exec(query))
+			{
+				var r = prompt(sr[1]);
+				if (r===null) return;
+				query = query.replace(patt, r);
+			}
+			$('.sqlpanel input[type="text"]').val(query);
+			$('.sqlpanel form').submit();
+		});
 
 		$('.datepanel h1').css('cursor', 'pointer').mousedown(function() {
 			var date = $(this).text();
