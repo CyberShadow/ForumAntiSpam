@@ -104,7 +104,7 @@ Post getPost(string id)
 	loginCheck();
 	auto html = fixHtml(download(baseUrl ~ "showpost.php?p=" ~ id));
 	auto doc = new XmlDocument(new MemoryStream(cast(char[])html));
-	post.user = doc["html"]["body"]["form"]["table", 1]["tr", 1]["td"]["div"]["a"].text;
+	post.user = doc["html"]["body"]["form"]["table", 1]["tr", 1]["td"]["div"]["a"].text().forceValidUTF8();
 	post.userid = to!int(doc["html"]["body"]["form"]["table", 1]["tr", 1]["td"]["div"]["a"].attributes["href"].split("?")[1].decodeUrlParameters()["u"]);
 	auto actionButtons = doc["html"]["body"]["form"]["table", 1]["tr", 2]["td"].findChildren("a");
 	post.ip = actionButtons[$-1]["img"].attributes["title"];
@@ -113,8 +113,8 @@ Post getPost(string id)
 	html = fixHtml(download(baseUrl ~ "editpost.php?do=editpost&p=" ~ id));
 	enforce(!isInvalidPost(html), "Can't get post vbCode");
 	doc = new XmlDocument(new MemoryStream(cast(char[])html));
-	post.title = doc["html"]["body"]["div"]["div"]["div"]["form", 1]["table"]["tr", 1]["td"]["div"]["div"]["table"]["tr", 1]["td"]["input"].attributes["value"];
-	post.text  = doc["html"]["body"]["div"]["div"]["div"]["form", 1]["table"]["tr", 1]["td"]["div"]["div"]["table", 1]["tr"]["td"]["table"]["tr"]["td"]["textarea"].text;
+	post.title = doc["html"]["body"]["div"]["div"]["div"]["form", 1]["table"]["tr", 1]["td"]["div"]["div"]["table"]["tr", 1]["td"]["input"].attributes["value"].forceValidUTF8();
+	post.text  = doc["html"]["body"]["div"]["div"]["div"]["form", 1]["table"]["tr", 1]["td"]["div"]["div"]["table", 1]["tr"]["td"]["table"]["tr"]["td"]["textarea"].text().forceValidUTF8();
 
 	post.time = Clock.currTime().stdTime;
 	post.moderated = false;
