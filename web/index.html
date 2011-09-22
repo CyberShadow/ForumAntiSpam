@@ -18,7 +18,9 @@
 	<div id="sql">
 		<div class="content" style="display: none">
 			<div class="commonqueries">Presets:
-				<button title="SELECT ip, COUNT(ip) AS count FROM posts WHERE verdict=1 AND time > (strftime('%s','now') - 3600*24*?How many days to look back (e.g. 7 for 1 week)? + 62135596800)*10000000 GROUP BY ip ORDER BY count DESC LIMIT 10">Latest top spammers</button>
+				<!--button title="SELECT ip, COUNT(ip) AS count FROM posts WHERE verdict=1 AND time > (strftime('%s','now') - 3600*24*?How many days to look back (e.g. 7 for 1 week)? + 62135596800)*10000000 GROUP BY ip ORDER BY count DESC LIMIT 10">Latest top spammers</button-->
+				<button title="SELECT ip, COUNT(DISTINCT user) AS count FROM posts WHERE verdict=1 AND time > (strftime('%s','now') - 3600*24*?How many days to look back (e.g. 7 for 1 week)? + 62135596800)*10000000 GROUP BY ip ORDER BY count DESC LIMIT 10">Latest top spammers</button>
+				<button title="SELECT DISTINCT user FROM posts WHERE ip='?Enter IP address?'">Find users by IP</button>
 				<button title="SELECT * FROM posts WHERE ip = '?Enter IP address?'">Find posts by IP</button>
 				<button title="SELECT ip, COUNT(ip) AS count FROM posts WHERE ip LIKE '?Enter part of an IP address?%' GROUP BY ip ORDER BY count DESC">Search IPs</button>
 			</div>
