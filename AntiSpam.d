@@ -4,7 +4,7 @@ import std.stdio;
 import std.file;
 import std.string;
 import std.getopt;
-import std.datetime : SysTime, Date, dur;
+import std.datetime : SysTime, Date, UTC, dur;
 import std.exception;
 import std.array : array;
 import std.algorithm : map;
@@ -71,7 +71,7 @@ class AntiSpamFrontend
 			{
 				string[] dates;
 				while (DB.getDates.step())
-					dates ~= (cast(Date)SysTime(DB.getDates.column!long(0))).toSimpleString();
+					dates ~= (cast(Date)SysTime(DB.getDates.column!long(0), UTC())).toSimpleString();
 				return resp.serveJson(dates);
 			}
 			else
@@ -87,14 +87,14 @@ class AntiSpamFrontend
 				}
 
 				auto date = Date.fromSimpleString(args["date"]);
-				DB.getPosts.bindAll(SysTime(date).stdTime, SysTime(date + dur!"days"(1)).stdTime);
+				DB.getPosts.bindAll(SysTime(date, UTC()).stdTime, SysTime(date + dur!"days"(1), UTC()).stdTime);
 				JSONPost[] posts;
 				while (DB.getPosts.step())
 				{
 					Post post;
 					DB.getPosts.columns(post.dbPost.tupleof);
 					with (post.dbPost)
-						posts ~= JSONPost(id, SysTime(time).toString(), forceValidUTF8(user), userid, ip, forceValidUTF8(title), forceValidUTF8(text), moderated, verdict);
+						posts ~= JSONPost(id, SysTime(time, UTC()).toString(), forceValidUTF8(user), userid, ip, forceValidUTF8(title), forceValidUTF8(text), moderated, verdict);
 				}
 				return resp.serveJson(posts);
 			}
@@ -135,8 +135,8 @@ class AntiSpamFrontend
 					auto engine = findEngine(dbResult.engineName);
 					with (dbResult)
 						results ~= JSONResult(
-							engineName, SysTime(time).toString(), result, details,
-							fbtime != 0, SysTime(fbtime).toString(), fbverdict,
+							engineName, SysTime(time, UTC()).toString(), result, details,
+							fbtime != 0, SysTime(fbtime, UTC()).toString(), fbverdict,
 							engine ? engine.acceptsFeedback(true ) : false,
 							engine ? engine.acceptsFeedback(false) : false,
 						);
