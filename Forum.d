@@ -199,6 +199,7 @@ string fixHtml(string html)
 		.replace(`50"></a>`, `50"/></a>`)
 		.replace(`<br>`, `<br/>`)
 		.replace(`<hr size="1" noshade>`, `<hr/>`)
+		.replace(`this.value='Show'; }" type="button">`, `this.value='Show'; }" type="button" />`)
 	;
 }
 
