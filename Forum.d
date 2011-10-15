@@ -152,7 +152,6 @@ void modAction(string action, string[string] modParameters)
 		html = post(baseUrl ~ action, encodeUrlParameters(modParameters));
 		enforce(!html.contains("Please login again to verify the legitimacy of this request"), "Authorization loop");
 	}
-	std.file.write("modaction.html", html);
 }
 
 void deletePost(string id, string reason)
