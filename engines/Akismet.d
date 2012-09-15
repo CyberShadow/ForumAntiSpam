@@ -5,7 +5,7 @@ import std.string;
 import std.exception;
 
 import ae.net.http.common;
-import ae.utils.cmd;
+import ae.sys.cmd;
 
 import SpamCommon;
 
