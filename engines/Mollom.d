@@ -74,6 +74,15 @@ struct CheckContentResult
 	}
 }
 
+private string sanitize(string s)
+{
+	string result;
+	foreach (c; s)
+		if (c >= 0x20 || c == 0x0D || c == 0x0A || c == 0x09)
+			result ~= c;
+	return result;
+}
+
 CheckContentResult postMessage(Post post)
 {
 	struct CheckContentParams
@@ -82,7 +91,7 @@ CheckContentResult postMessage(Post post)
 		mixin CommonRequestParameters;
 	}
 
-	return request!(CheckContentResult)("checkContent", CheckContentParams(post.title, post.text, post.user, post.ip, to!string(post.userid)));
+	return request!(CheckContentResult)("checkContent", CheckContentParams(sanitize(post.title), sanitize(post.text), post.user, post.ip, to!string(post.userid)));
 }
 
 public bool sendFeedback(string sessionID, string feedback)
