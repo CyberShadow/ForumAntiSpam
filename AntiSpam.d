@@ -210,7 +210,8 @@ void main(string[] args)
 	string[] enabledEngines = splitLines(readText("data/engines.txt"));
 	bool[string] knownPosts;
 
-	setInterval({
+	void run()
+	{
 		string[] posts = getPostsToModerate() ~ getThreadsToModerate();
 		foreach (id; posts)
 			if (!(id in knownPosts))
@@ -263,7 +264,10 @@ void main(string[] args)
 				log("###########################################################################################");
 				knownPosts[id] = true;
 			}
-	}, TickDuration.from!"seconds"(30));// +/
+	}
+
+	run();
+	setInterval(&run, TickDuration.from!"seconds"(30));// +/
 
 	new AntiSpamFrontend();
 	socketManager.loop();
