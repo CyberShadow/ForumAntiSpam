@@ -4,6 +4,8 @@ import std.stdio;
 import std.file;
 import std.string;
 
+import ae.sys.file;
+
 import Forum;
 
 void main()
@@ -11,7 +13,7 @@ void main()
 	bool[string] engineResults;
 	string postID;
 	int[string] engineTotal, engineFalsePositive, engineFalseNegative;
-	foreach (file; listdir("logs", "*.log"))
+	foreach (file; fastListDir("logs", "*.log"))
 		foreach (line; splitLines(cast(string)read(file)))
 			if (line.startsWith("["))
 			{
