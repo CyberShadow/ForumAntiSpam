@@ -9,13 +9,13 @@ import std.exception;
 import std.array : array;
 import std.algorithm : map;
 
-import ae.utils.log;
-import ae.utils.text;
-import ae.utils.array;
-import ae.sys.timing;
 import ae.net.asockets;
 import ae.net.http.server;
 import ae.net.http.responseex;
+import ae.sys.log;
+import ae.sys.timing;
+import ae.utils.array;
+import ae.utils.text;
 
 import Forum;
 import SpamCommon;
@@ -39,7 +39,7 @@ class AntiSpamFrontend
 		log = quiet ? new FileLogger("HTTP") : new FileAndConsoleLogger("HTTP");
 	}
 
-	HttpResponse onRequest(HttpRequest request, ClientSocket conn)
+	void onRequest(HttpRequest request, HttpServerConnection conn)
 	{
 		auto resp = new HttpResponseEx();
 		try
@@ -64,7 +64,7 @@ class AntiSpamFrontend
 				}
 				JSONInfo info;
 				info.baseUrl = publicBaseUrl;
-				return resp.serveJson(info);
+				resp.serveJson(info);
 			}
 			else
 			if (resource == "/data/dates")
@@ -72,7 +72,7 @@ class AntiSpamFrontend
 				string[] dates;
 				while (DB.getDates.step())
 					dates ~= (cast(Date)SysTime(DB.getDates.column!long(0), UTC())).toSimpleString();
-				return resp.serveJson(dates);
+				resp.serveJson(dates);
 			}
 			else
 			if (resource == "/data/posts")
@@ -96,7 +96,7 @@ class AntiSpamFrontend
 					with (post.dbPost)
 						posts ~= JSONPost(id, SysTime(time, UTC()).toString(), forceValidUTF8(user), userid, ip, forceValidUTF8(title), forceValidUTF8(text), moderated, verdict);
 				}
-				return resp.serveJson(posts);
+				resp.serveJson(posts);
 			}
 			else
 			if (resource == "/data/results")
@@ -141,7 +141,7 @@ class AntiSpamFrontend
 							engine ? engine.acceptsFeedback(false) : false,
 						);
 				}
-				return resp.serveJson(results);
+				resp.serveJson(results);
 			}
 			else
 			if (resource == "/data/feedback")
@@ -153,7 +153,7 @@ class AntiSpamFrontend
 
 				auto post = getPost(id);
 				engine.sendFeedback(post, isSpam);
-				return resp.serveJson("OK");
+				resp.serveJson("OK");
 			}
 			else
 			if (resource == "/data/sql")
@@ -176,10 +176,10 @@ class AntiSpamFrontend
 						break;
 					}
 				}
-				return resp.serveJson(result);
+				resp.serveJson(result);
 			}
 			else
-				return resp.serveFile(resource[1..$], "web/");
+				resp.serveFile(resource[1..$], "web/");
 		}
 		catch (Exception e)
 		{
@@ -187,12 +187,13 @@ class AntiSpamFrontend
 			if (request.resource().startsWith("/data/"))
 			{
 				struct ErrorReply { string error; }
-				return resp.serveJson(ErrorReply(e.msg));
+				resp.serveJson(ErrorReply(e.msg));
 			}
 			else
-				return resp.writeError(HttpStatusCode.InternalServerError, e.msg);
+				resp.writeError(HttpStatusCode.InternalServerError, e.msg);
 			//log(o.toString);
 		}
+		conn.sendResponse(resp);
 	}
 }
 
@@ -209,7 +210,8 @@ void main(string[] args)
 	string[] enabledEngines = splitLines(readText("data/engines.txt"));
 	bool[string] knownPosts;
 
-	setInterval({
+	void run()
+	{
 		string[] posts = getPostsToModerate() ~ getThreadsToModerate();
 		foreach (id; posts)
 			if (!(id in knownPosts))
@@ -226,7 +228,7 @@ void main(string[] args)
 				string[] positiveEngines;
 				int totalEngines = 0;
 				foreach (engine; spamEngines)
-					if (inArray(enabledEngines, engine.name))
+					if (enabledEngines.contains(engine.name))
 					{
 						totalEngines++;
 						auto result = engine.check(post);
@@ -262,7 +264,10 @@ void main(string[] args)
 				log("###########################################################################################");
 				knownPosts[id] = true;
 			}
-	}, TickDuration.from!"seconds"(30));// +/
+	}
+
+	run();
+	setInterval(&run, TickDuration.from!"seconds"(30));// +/
 
 	new AntiSpamFrontend();
 	socketManager.loop();

@@ -7,8 +7,8 @@ import std.exception;
 
 import ae.net.http.common;
 import ae.utils.xml;
-import ae.utils.cmd;
 import ae.utils.time;
+import ae.sys.cmd;
 
 import SpamCommon;
 

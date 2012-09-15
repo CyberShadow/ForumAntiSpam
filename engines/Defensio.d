@@ -6,8 +6,8 @@ import std.stream;
 import std.exception;
 
 import ae.net.http.common;
+import ae.sys.cmd;
 import ae.utils.xml;
-import ae.utils.cmd;
 
 import SpamCommon;
 

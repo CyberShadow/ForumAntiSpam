@@ -7,12 +7,12 @@ import std.datetime;
 import std.random;
 import std.stream;
 
+import ae.sys.cmd;
 import ae.utils.xml;
 import ae.utils.xmlrpc;
 import ae.utils.time;
 import ae.utils.text;
 import ae.utils.digest;
-import ae.utils.cmd;
 
 import SpamCommon;
 
