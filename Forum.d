@@ -77,6 +77,7 @@ string[] getThreadsToModerate()
 {
 	loginCheck();
 	auto html = fixHtml(download(baseUrl ~ "moderation.php?do=viewthreads&type=moderated"));
+	scope(failure) std.file.write("badthreads.html", html);
 	auto doc = new XmlDocument(new MemoryStream(cast(char[])html));
 	auto form = doc["html"]["body"]["div"]["div"]["div"]["table", 1]["tr"]["td", 2]["form"];
 	saveSecurityToken(form);
