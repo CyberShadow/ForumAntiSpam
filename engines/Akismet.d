@@ -45,13 +45,13 @@ struct Akismet(string SERVER, string CONFIGFILE)
 	static void sendSpam(Post post, CheckResult checkResult)
 	{
 		auto result = request(post, "submit-spam");
-		enforce(result == "Thanks for making the web a better place.", result);
+		enforce(result == "Thanks for making the web a better place." || result == "Feedback received.", result);
 	}
 
 	static void sendHam(Post post, CheckResult checkResult)
 	{
 		auto result = request(post, "submit-ham");
-		enforce(result == "Thanks for making the web a better place.", result);
+		enforce(result == "Thanks for making the web a better place." || result == "Feedback received.", result);
 	}
 
 	static SpamEngine makeEngine(string name) { return SpamEngine(name, &check, &sendSpam, &sendHam); }
