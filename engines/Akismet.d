@@ -11,40 +11,54 @@ import SpamCommon;
 
 private:
 
-string request(Post post, string request)
+struct Service
 {
-	auto config = splitLines(readText("data/akismet.txt"));
-	string key = config[0];
-	string blog = config[1];
-
-	string[string] params = [
-		"blog"[] : blog,
-		"comment_author" : post.user,
-		"user_ip" : post.ip,
-		"comment_content" : post.text
-	];
-
-	return .post("http://" ~ key ~ ".rest.akismet.com/1.1/" ~ request, encodeUrlParameters(params));
+	string name, server, configFile;
 }
 
-CheckResult check(Post post)
+struct Akismet(string SERVER, string CONFIGFILE)
 {
-	auto result = request(post, "comment-check");
+	static string request(Post post, string request)
+	{
+		auto config = splitLines(readText("data/"~CONFIGFILE~".txt"));
+		string key = config[0];
+		string blog = config[1];
 
-	enforce(result == "true" || result == "false", result);
-	return CheckResult(result == "true");
+		string[string] params = [
+			"blog"[] : blog,
+			"comment_author" : post.user,
+			"user_ip" : post.ip,
+			"comment_content" : post.text
+		];
+
+		return .post("http://" ~ key ~ "."~SERVER~"/1.1/" ~ request, encodeUrlParameters(params));
+	}
+
+	static CheckResult check(Post post)
+	{
+		auto result = request(post, "comment-check");
+
+		enforce(result == "true" || result == "false", result);
+		return CheckResult(result == "true");
+	}
+
+	static void sendSpam(Post post, CheckResult checkResult)
+	{
+		auto result = request(post, "submit-spam");
+		enforce(result == "Thanks for making the web a better place.", result);
+	}
+
+	static void sendHam(Post post, CheckResult checkResult)
+	{
+		auto result = request(post, "submit-ham");
+		enforce(result == "Thanks for making the web a better place.", result);
+	}
+
+	static SpamEngine makeEngine(string name) { return SpamEngine(name, &check, &sendSpam, &sendHam); }
 }
 
-void sendSpam(Post post, CheckResult checkResult)
+static this()
 {
-	auto result = request(post, "submit-spam");
-	enforce(result == "Thanks for making the web a better place.", result);
+	spamEngines ~= Akismet!("rest.akismet.com", "akismet").makeEngine("Akismet");
+	spamEngines ~= Akismet!("api.antispam.typepad.com", "typepadantispam").makeEngine("TypePadAntiSpam");
 }
-
-void sendHam(Post post, CheckResult checkResult)
-{
-	auto result = request(post, "submit-ham");
-	enforce(result == "Thanks for making the web a better place.", result);
-}
-
-static this() { spamEngines ~= SpamEngine("Akismet", &check, &sendSpam, &sendHam); }
