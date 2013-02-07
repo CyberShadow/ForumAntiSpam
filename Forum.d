@@ -1,12 +1,13 @@
 module Forum;
 
-import std.string;
-import std.conv;
 import std.array;
-import std.stream;
-import std.file;
-import std.exception;
+import std.conv;
 import std.datetime;
+import std.exception;
+import std.file;
+import std.regex;
+import std.stream;
+import std.string;
 
 import ae.net.http.common;
 import ae.sys.cmd;
@@ -193,6 +194,13 @@ void infract(Post post, int points, string adminnote)
 	modAction("infraction.php", modParameters);
 }
 
+Regex!char badEntity;
+
+static this()
+{
+	badEntity = regex(`&[^;&<]+<`);
+}
+
 string fixHtml(string html)
 {
 	return html
@@ -200,6 +208,7 @@ string fixHtml(string html)
 		.replace(`<br>`, `<br/>`)
 		.replace(`<hr size="1" noshade>`, `<hr/>`)
 		.replace(`this.value='Show'; }" type="button">`, `this.value='Show'; }" type="button" />`)
+		.replace(badEntity, `<`)
 	;
 }
 
