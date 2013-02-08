@@ -105,6 +105,7 @@ Post getPost(string id)
 
 	loginCheck();
 	auto html = fixHtml(download(baseUrl ~ "showpost.php?p=" ~ id));
+	scope(failure) std.file.write("badpost.html", html);
 	auto doc = new XmlDocument(new MemoryStream(cast(char[])html));
 	post.user = doc["html"]["body"]["form"]["table", 1]["tr", 1]["td"]["div"]["a"].text().forceValidUTF8();
 	post.userid = to!int(doc["html"]["body"]["form"]["table", 1]["tr", 1]["td"]["div"]["a"].attributes["href"].split("?")[1].decodeUrlParameters()["u"]);
@@ -198,7 +199,7 @@ Regex!char badEntity;
 
 static this()
 {
-	badEntity = regex(`&[^;&<]+<`);
+	badEntity = regex(`&[^;&<"]+([<"])`, "g");
 }
 
 string fixHtml(string html)
@@ -208,7 +209,7 @@ string fixHtml(string html)
 		.replace(`<br>`, `<br/>`)
 		.replace(`<hr size="1" noshade>`, `<hr/>`)
 		.replace(`this.value='Show'; }" type="button">`, `this.value='Show'; }" type="button" />`)
-		.replace(badEntity, `<`)
+		.replace(badEntity, `$1`)
 	;
 }
 
