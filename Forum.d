@@ -199,7 +199,7 @@ Regex!char badEntity;
 
 static this()
 {
-	badEntity = regex(`&[^;&<"]+([<"])`, "g");
+	badEntity = regex(`&[^;&<"]*([<"])`, "g");
 }
 
 string fixHtml(string html)
